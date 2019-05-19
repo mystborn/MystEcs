@@ -1,0 +1,2 @@
+option('x86', type: 'boolean', value: true)
+option('check_location', type: 'string', description: 'The location of the unit testing library Check. Leave blank to exclude tests.', value: '')

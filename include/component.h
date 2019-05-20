@@ -40,7 +40,7 @@ typedef struct ComponentManager {
     int component_size;
 
     // Should not be used.
-    int id;
+    int world_disposed_id;
 } ComponentManager;
 
 // Used to enumerate over all active components of the specified type.
@@ -52,9 +52,6 @@ typedef struct ComponentIterator {
     ComponentEnum* components;
     int index;
 } ComponentIterator;
-
-// Initializes the component management subsystem. Should not be called directly.
-void ecs_component_management_system_init(void);
 
 // Defines a ComponentManager for a specific component type.
 // component_size: The sizeof the component type. Used to allocate new components.

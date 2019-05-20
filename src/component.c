@@ -12,12 +12,6 @@
 //
 // Defines the types and methods used to manage components.
 
-struct ComponentManagementSystem {
-    IntDispenser dispenser;
-    ComponentManager* managers;
-    int capacity;
-};
-
 // Creates a link between two entities to the same component.
 typedef struct ComponentLink {
     int entity_id;
@@ -37,9 +31,8 @@ typedef struct ComponentPool {
     ComponentLink* links;
     int link_count;
     int last_component_index;
+    int entity_disposed_id;
 } ComponentPool;
-
-static struct ComponentManagementSystem component_management_system;
 
 // Frees a previously create ComponentPool, calling the destructor on each active component if defined.
 // @param flag The flag of the component that is being freed.
@@ -77,27 +70,22 @@ static void ecs_component_pool_free(ComponentPool* pool, ComponentDestructor des
     if(pool->links != NULL)
         ecs_free(pool->links);
 
+    ecs_event_unsubscribe(pool->world, ecs_entity_disposed, pool->entity_disposed_id);
+
     ecs_free(pool);
 }
 
-static void on_world_disposed(EcsWorldDisposedMessage* message) {
-    for(int i = 0; i < component_management_system.dispenser.total; ++i) {
-        ComponentManager* manager = component_management_system.managers + i;
-        if(manager->id != -1 && message->world < manager->pool_count && manager->pools[message->world] != NULL)
-        {
-            ecs_component_pool_free(manager->pools[message->world], manager->destructor, COMPONENT_FLAG_INVALID_MASK);
-            manager->pools[message->world] = NULL;
-
-        }
+static void component_on_world_disposed(void* data, EcsWorldDisposedMessage* message) {
+    ComponentManager* manager = data;
+    if(message->world < manager->pool_count && manager->pools[message->world] != NULL) {
+        ecs_component_pool_free(manager->pools[message->world], manager->destructor, COMPONENT_FLAG_INVALID_MASK);
+        manager->pools[message->world] = NULL;
     }
 }
 
-static void on_entity_disposed(EcsEntityDisposedMessage* message) {
-    for(int i = 0; i < component_management_system.dispenser.total; ++i) {
-        ComponentManager* manager = component_management_system.managers + i;
-        if(manager->id != -1)
-            ecs_component_remove(message->entity, manager);
-    }
+static void component_on_entity_disposed(void* data, EcsEntityDisposedMessage* message) {
+    ComponentManager* manager = data;
+    ecs_component_remove(message->entity, manager);
 }
 
 // Initializes a new ComponentPool.
@@ -115,24 +103,8 @@ static ComponentPool* ecs_component_pool_init(int world, int component_size) {
     return pool;
 }
 
-void ecs_component_management_system_init(void) {
-    ecs_dispenser_init(&component_management_system.dispenser);
-    component_management_system.managers = NULL;
-    component_management_system.capacity = 0;
-
-    ecs_event_add(ecs_world_disposed, on_world_disposed);
-    ecs_event_subscribe(0, ecs_entity_disposed, on_entity_disposed);
-
-
-#if ECS_DEBUG
-    puts("Component Management System Initialized");
-#endif
-}
-
 ComponentManager* ecs_component_define(int component_size, ComponentConstructor constructor, ComponentDestructor destructor) {
-    int id = ecs_dispenser_get(&component_management_system.dispenser);
-    ECS_ARRAY_RESIZE(component_management_system.managers, component_management_system.capacity, id, sizeof(ComponentManager));
-    ComponentManager* manager = component_management_system.managers + id;
+    ComponentManager* manager = ecs_malloc(sizeof(ComponentManager));
     manager->flag = ecs_component_flag_get();
     manager->constructor = constructor;
     manager->destructor = destructor;
@@ -141,7 +113,7 @@ ComponentManager* ecs_component_define(int component_size, ComponentConstructor 
     manager->pools = NULL;
     manager->pool_count = 0;
     manager->component_size = component_size;
-    manager->id = id;
+    manager->world_disposed_id = ecs_event_add(ecs_world_disposed, ecs_closure(manager, component_on_world_disposed));
 
     return manager;
 }
@@ -157,15 +129,15 @@ void ecs_component_free(ComponentManager* manager) {
         ecs_free(manager->pools);
     }
 
-    ecs_dispenser_release(&component_management_system.dispenser, manager->id);
-    manager->pools = NULL;
-    manager->pool_count = 0;
-    manager->id = -1;
     if(manager->added != NULL)
         ecs_event_manager_free(manager->added);
 
     if(manager->removed != NULL)
         ecs_event_manager_free(manager->removed);
+
+    ecs_event_remove(ecs_world_disposed, manager->world_disposed_id);
+
+    ecs_free(manager);
 }
 
 // Gets or creates the ComponentPool for a specific component type on the specified world.
@@ -175,6 +147,8 @@ static ComponentPool* ecs_component_pool_get_or_create(ComponentManager* manager
         ECS_ARRAY_RESIZE_DEFAULT(manager->pools, manager->pool_count, world, sizeof(*manager->pools), NULL);
 
         ComponentPool* result = ecs_component_pool_init(world, manager->component_size);
+        result->entity_disposed_id = ecs_event_subscribe(world, ecs_entity_disposed, ecs_closure(manager, component_on_entity_disposed));
+
         manager->pools[world] = result;
 
         return result;
@@ -201,7 +175,7 @@ void* ecs_component_set(Entity entity, ComponentManager* manager) {
             ecs_component_enum_set_flag(components, manager->flag, true);
             if(manager->added != NULL && ecs_component_enum_get_flag(components, is_enabled_flag)) {
                 EcsComponentAddedMessage message = { entity, result };
-                ecs_event_publish(entity.world, manager->added, void (*)(EcsComponentAddedMessage*), &message);
+                ecs_event_publish(entity.world, manager->added, void (*)(void*, EcsComponentAddedMessage*), &message);
             }
         }
 
@@ -231,7 +205,7 @@ void* ecs_component_set(Entity entity, ComponentManager* manager) {
         ecs_component_enum_set_flag(components, manager->flag, true);
         if(manager->added != NULL && ecs_component_enum_get_flag(components, is_enabled_flag)) {
             EcsComponentAddedMessage message = { entity, result };
-            ecs_event_publish(entity.world, manager->added, void (*)(EcsComponentAddedMessage*), &message);
+            ecs_event_publish(entity.world, manager->added, void (*)(void*, EcsComponentAddedMessage*), &message);
         }
     }
 
@@ -271,7 +245,7 @@ EcsResult ecs_component_set_same_as(Entity entity, Entity reference, ComponentMa
     if(manager->added != NULL && ecs_component_enum_get_flag(components, is_enabled_flag)) {
         void* component = pool->components + pool->component_size * ref_index;
         EcsComponentAddedMessage message = { entity, component };
-        ecs_event_publish(entity.world, manager->added, void (*)(EcsComponentAddedMessage*), &message);
+        ecs_event_publish(entity.world, manager->added, void (*)(void*, EcsComponentAddedMessage*), &message);
     }
 
     return ECS_RESULT_SUCCESS;
@@ -294,7 +268,7 @@ EcsResult ecs_component_remove(Entity entity, ComponentManager* manager) {
         if(manager->removed != NULL && ecs_component_enum_get_flag(components, is_enabled_flag)) {
             void* component = pool->components + pool->component_size * *index;
             EcsComponentRemovedMessage message = { entity, component };
-            ecs_event_publish(entity.world, manager->removed, void (*)(EcsComponentRemovedMessage*), &message);
+            ecs_event_publish(entity.world, manager->removed, void (*)(void*, EcsComponentRemovedMessage*), &message);
         }
     }
 
@@ -348,7 +322,7 @@ EcsResult ecs_component_enable(Entity entity, ComponentManager* manager) {
         EcsComponentAddedMessage message = { entity, component };
         ecs_component_enum_set_flag(components, manager->flag, true);
         if(manager->added != NULL)
-            ecs_event_publish(entity.world, manager->added, void (*)(EcsComponentAddedMessage*), &message);
+            ecs_event_publish(entity.world, manager->added, void (*)(void*, EcsComponentAddedMessage*), &message);
 
         return ECS_RESULT_SUCCESS;
     }
@@ -373,7 +347,7 @@ EcsResult ecs_component_disable(Entity entity, ComponentManager* manager) {
         EcsComponentRemovedMessage message = { entity, component };
         ecs_component_enum_set_flag(components, manager->flag, false);
         if(manager->removed != NULL)
-            ecs_event_publish(entity.world, manager->removed, void (*)(EcsComponentRemovedMessage*), &message);
+            ecs_event_publish(entity.world, manager->removed, void (*)(void*, EcsComponentRemovedMessage*), &message);
 
         return ECS_RESULT_SUCCESS;
     }

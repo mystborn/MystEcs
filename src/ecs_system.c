@@ -8,7 +8,7 @@ void ecs_system_init(EcsSystem* system, EcsSystemType type, EcsSystemPreupdate p
     system->dispose = ecs_event_init();
 }
 
-static void ecs_sequential_system_free(EcsSystem* system) {
+static void ecs_sequential_system_free(void* data, EcsSystem* system) {
     EcsSequentialSystem* seq_system = (EcsSequentialSystem*)system;
     if(seq_system->free_children) {
         for(int i = 0; i < seq_system->count; ++i) {
@@ -21,14 +21,14 @@ static void ecs_sequential_system_free(EcsSystem* system) {
     ecs_free(seq_system->systems);
 }
 
-static void ecs_entity_system_free(EcsSystem* system) {
+static void ecs_entity_system_free(void* data, EcsSystem* system) {
     EcsEntitySystem* entity_system = (EcsEntitySystem*)system;
     ecs_component_enum_free_resources(&entity_system->with);
     ecs_component_enum_free_resources(&entity_system->without);
 }
 
 void ecs_system_free_resources(EcsSystem* system) {
-    ecs_event_trigger(system->dispose, void (*)(EcsSystem*), system);
+    ecs_event_trigger(system->dispose, void (*)(void*, EcsSystem*), system);
 }
 
 bool ecs_system_enable(EcsSystem* system) {
@@ -73,7 +73,7 @@ void ecs_entity_system_init(EcsEntitySystem* system,
     ecs_component_enum_set_flag(&system->with, is_enabled_flag, true);
     system->without = ecs_component_enum_copy(without);
     system->update = update;
-    ecs_event_add(system->base.dispose, ecs_entity_system_free);
+    ecs_event_add(system->base.dispose, ecs_closure(NULL, ecs_entity_system_free));
 }
 
 void ecs_action_system_init(EcsActionSystem* system, 
@@ -103,7 +103,7 @@ void ecs_sequential_system_init(EcsSequentialSystem* system,
     system->systems = systems;
     system->count = count;
     system->free_children = free_children;
-    ecs_event_add(system->base.dispose, ecs_sequential_system_free);
+    ecs_event_add(system->base.dispose, ecs_closure(NULL, ecs_sequential_system_free));
 }
 
 void ecs_sequential_system_init_array(EcsSequentialSystem* system, 
@@ -118,6 +118,7 @@ void ecs_sequential_system_init_array(EcsSequentialSystem* system,
     ecs_memcpy(system->systems, systems, count * sizeof(EcsSystem*));
     system->count = count;
     system->free_children = free_children;
+    ecs_event_add(system->base.dispose, ecs_closure(NULL, ecs_sequential_system_free));
 }
 
 void ecs_sequential_system_init_list(EcsSequentialSystem* system, 
@@ -134,6 +135,7 @@ void ecs_sequential_system_init_list(EcsSequentialSystem* system,
     }
     system->count = count;
     system->free_children = free_children;
+    ecs_event_add(system->base.dispose, ecs_closure(NULL, ecs_sequential_system_free));
 }
 
 void ecs_system_update(EcsSystem* system, float delta_time) {

@@ -59,6 +59,9 @@ extern EcsEventManager* ecs_entity_enabled;
 // Ecs Event that is triggered when an entity is disabled.
 extern EcsEventManager* ecs_entity_disabled;
 
+// An event that is triggered when a world is freed.
+extern EcsEvent* ecs_world_disposed;
+
 // Initializes the various events that utilize the messages.
 void ecs_messages_init(void);
 

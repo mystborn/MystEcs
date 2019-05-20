@@ -39,7 +39,6 @@
                     (current_size) *= 2;\
                 }\
             } \
-            printf("[%s, %d] %d * %d = %d\n", __FILE__, __LINE__, (element_size), (current_size), (element_size) * (current_size));\
             (array) = ecs_realloc((array), (element_size) * (current_size)); \
             while(___ecs_array_old_size < (current_size)) *((array) + ___ecs_array_old_size++) = (default_value); \
         } \

@@ -1,4 +1,4 @@
-project('myst_ecs', 'c', version: '0.0.1', license: 'MIT')
+project('myst_ecs', 'c', version: '0.0.2', license: 'MIT')
 
 c_comp = meson.get_compiler('c')
 x86 = get_option('x86')

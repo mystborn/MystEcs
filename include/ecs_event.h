@@ -5,10 +5,18 @@
 #include "entity.h"
 #include "int_dispenser.h"
 
+typedef struct EcsClosure {
+    void* data;
+    void* function;
+    bool active;
+} EcsClosure;
+
+#define ecs_closure(data, function) (EcsClosure){ data, function, false }
+
 // A C# like event.
 typedef struct EcsEvent {
     IntDispenser dispenser;
-    void** subscriptions;
+    EcsClosure* subscriptions;
     int capacity;
 } EcsEvent;
 
@@ -17,7 +25,6 @@ typedef struct EcsEventManager {
     EcsEvent** events;
     int capacity;
     int id;
-    bool active;
 } EcsEventManager;
 
 // Defines a new Ecs Event.
@@ -27,7 +34,7 @@ EcsEventManager* ecs_event_define(void);
 void ecs_event_manager_free(EcsEventManager* manager);
 
 // Subscribes a function to an Ecs Event. Returns an id that can be used to unsubscribe if needed.
-int ecs_event_subscribe(EcsWorld world, EcsEventManager* manager, void* function);
+int ecs_event_subscribe(EcsWorld world, EcsEventManager* manager, EcsClosure closure);
 
 // Unsubscribes from an Ecs Event.
 EcsResult ecs_event_unsubscribe(EcsWorld world, EcsEventManager* manager, int id);
@@ -39,16 +46,10 @@ EcsEvent* ecs_event_init(void);
 void ecs_event_free(EcsEvent* event);
 
 // Subscribes a function to an event. Returns an id that can be used to unsubscribe if needed.
-int ecs_event_add(EcsEvent* event, void* function);
+int ecs_event_add(EcsEvent* event, EcsClosure closure);
 
 // Unsubscribes a function from an event.
-void ecs_event_remove(EcsEvent* event, int id);
-
-// Initializes the whole ecs event system. Should not be called directly.
-void ecs_event_system_init(void);
-
-// An event that is triggered when a world is freed.
-extern EcsEvent* ecs_world_disposed;
+bool ecs_event_remove(EcsEvent* event, int id);
 
 // Triggers an event.
 // event: The event to trigger.
@@ -56,9 +57,11 @@ extern EcsEvent* ecs_world_disposed;
 // ...: The arguments to pass to the functions subscribed to the event.
 #define ecs_event_trigger(event, event_signature, ...) \
     do { \
-        for(int ___ecs_event_publish_index = 0; ___ecs_event_publish_index < (event)->capacity; ++___ecs_event_publish_index) \
-            if((event)->subscriptions[___ecs_event_publish_index] != NULL) \
-                ((event_signature)((event)->subscriptions[___ecs_event_publish_index]))(__VA_ARGS__); \
+        for(int ___ecs_event_publish_index = 0; ___ecs_event_publish_index < (event)->capacity; ++___ecs_event_publish_index) { \
+            EcsClosure ___ecs_closure = (event)->subscriptions[___ecs_event_publish_index]; \
+            if(___ecs_closure.active) \
+                ((event_signature)(___ecs_closure.function))(___ecs_closure.data, ## __VA_ARGS__); \
+        } \
     } while(0)
 
 // Triggers an Ecs Event on the specified world.
@@ -73,9 +76,11 @@ extern EcsEvent* ecs_world_disposed;
         EcsEvent* ___ecs_event = (event_manager)->events[(world)]; \
         if(___ecs_event == NULL) \
             break; \
-        for(int ___ecs_event_publish_index = 0; ___ecs_event_publish_index < ___ecs_event->capacity; ++___ecs_event_publish_index) \
-            if(___ecs_event->subscriptions[___ecs_event_publish_index] != NULL) \
-                ((event_signature)(___ecs_event->subscriptions[___ecs_event_publish_index]))(__VA_ARGS__); \
+        for(int ___ecs_event_publish_index = 0; ___ecs_event_publish_index < ___ecs_event->capacity; ++___ecs_event_publish_index) { \
+            EcsClosure ___ecs_closure = (___ecs_event)->subscriptions[___ecs_event_publish_index]; \
+            if(___ecs_closure.active) \
+                ((event_signature)(___ecs_closure.function))(___ecs_closure.data, ## __VA_ARGS__); \
+        } \
     } while(0)
 
 

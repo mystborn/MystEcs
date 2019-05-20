@@ -8,7 +8,7 @@ static bool value = false;
 static int ecs_test_number = 0;
 EcsEventManager* bool_event;
 
-void set_value(bool result) {
+void set_value(void* data, bool result) {
     value = result;
 }
 
@@ -22,7 +22,6 @@ void world_teardown(void) {
 }
 
 void world_reset(void) {
-    printf("Test Number %d Completed\n", ecs_test_number++);
     value = false;
 }
 
@@ -44,9 +43,9 @@ END_TEST
 START_TEST(subscribe_should_subscribe) {
     EcsWorld world = ecs_world_init();
 
-    int id = ecs_event_subscribe(world, bool_event, set_value);
+    int id = ecs_event_subscribe(world, bool_event, ecs_closure(NULL, set_value));
 
-    ecs_event_publish(world, bool_event, void (*)(bool), true);
+    ecs_event_publish(world, bool_event, void (*)(void*, bool), true);
 
     ck_assert(value == true);
 
@@ -58,16 +57,16 @@ END_TEST
 START_TEST(subscribe_dispose_should_unsubscribe) {
     EcsWorld world = ecs_world_init();
 
-    ecs_event_subscribe(world, bool_event, set_value);
+    ecs_event_subscribe(world, bool_event, ecs_closure(NULL, set_value));
 
-    ecs_event_publish(world, bool_event, void (*)(bool), true);
+    ecs_event_publish(world, bool_event, void (*)(void*, bool), true);
 
     ck_assert(value == true);
 
     value = false;
     ecs_world_free(world);
 
-    ecs_event_publish(world, bool_event, void (*)(bool), true);
+    ecs_event_publish(world, bool_event, void (*)(void*, bool), true);
 
     ck_assert(value == false);
 }

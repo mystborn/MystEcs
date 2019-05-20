@@ -32,6 +32,7 @@ typedef struct EcsEntityDisabledMessage {
 // Will be reworked in the near future, so use with caution.
 typedef struct EcsComponentAddedMessage {
     Entity entity;
+    ComponentManager* component_type;
     void* component;
 } EcsComponentAddedMessage;
 
@@ -39,6 +40,7 @@ typedef struct EcsComponentAddedMessage {
 // Will be reworked in the near future, so use with caution.
 typedef struct EcsComponentRemovedMessage {
     Entity entity;
+    ComponentManager* component_type;
     void* component;
 } EcsComponentRemovedMessage;
 

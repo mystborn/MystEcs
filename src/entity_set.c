@@ -28,16 +28,9 @@ struct EntitySet {
     int entity_disposed_subscription;
     int entity_disabled_subscription;
     int entity_enabled_subscription;
+    int entity_created_subscription;
     EcsWorld world;
 };
-
-struct EntitySetManager {
-    IntDispenser dispenser;
-    EntitySet* sets;
-    int capacity;
-};
-
-static EntitySetManager set_manager;
 
 EntitySetBuilder* ecs_entity_set_builder_init(void) {
     EntitySetBuilder* builder = ecs_malloc(sizeof(EntitySetBuilder));
@@ -77,39 +70,195 @@ void ecs_entity_set_without(EntitySetBuilder* builder, ComponentManager* manager
     ecs_component_enum_set_flag(&builder->without, manager->flag, true);
 }
 
+static void entity_set_add(EntitySet* set, Entity entity) {
+    ECS_ARRAY_RESIZE_DEFAULT(set->mapping, set->mapping_capacity, entity.id, sizeof(int), -1);
+
+    int* index = set->mapping + entity.id;
+    if(*index == -1) {
+        *index = ++set->last_index;
+
+        ECS_ARRAY_RESIZE(set->entities, set->entity_capacity, *index, sizeof(int));
+
+        set->entities[*index] = entity;
+    }
+}
+
+static void entity_set_remove(EntitySet* set, Entity entity) {
+    if(entity.id >= set->mapping_capacity)
+        return;
+
+    int* index = set->mapping + entity.id;
+    if(*index == -1)
+        return;
+
+    if(*index != set->last_index) {
+        set->entities[*index] = set->entities[set->last_index];
+        set->mapping[set->entities[set->last_index].id] = *index;
+    }
+
+    --set->last_index;
+    *index = -1;
+}
+
+static inline bool entity_set_filter_enum(EntitySet* set, ComponentEnum* cenum) {
+    return ecs_component_enum_contains_enum(cenum, set->with) && ecs_component_enum_not_contains_enum(cenum, set->without);
+}
+
+static void entity_set_entity_created_add(void* data, EcsEntityCreatedMessage* message) {
+    entity_set_add((EntitySet*)data, message->entity);
+}
+
+static void entity_set_entity_enabled_checked_add(void* data, EcsEntityEnabledMessage* message) {
+    EntitySet* set = data;
+    if(entity_set_filter_enum(set, ecs_entity_get_components(message->entity)))
+        entity_set_add(set, message->entity);
+}
+
+static void entity_set_component_added_checked_add(void* data, EcsComponentAddedMessage* message) {
+    EntitySet* set = data;
+    if(entity_set_filter_enum(set, ecs_entity_get_components(message->entity)))
+        entity_set_add(set, message->entity);
+}
+
+static void entity_set_component_removed_checked_add(void* data, EcsComponentRemovedMessage* message) {
+    EntitySet* set = data;
+    if(entity_set_filter_enum(set, ecs_entity_get_components(message->entity)))
+        entity_set_add(set, message->entity);
+}
+
+static void entity_set_entity_disposed_remove(void* data, EcsEntityDisposedMessage* message) {
+    entity_set_remove((EntitySet*)data, message->entity);
+}
+
+static void entity_set_entity_disabled_remove(void* data, EcsEntityDisabledMessage* message) {
+    entity_set_remove((EntitySet*)data, message->entity);
+}
+
+static void entity_set_component_added_remove(void* data, EcsComponentAddedMessage* message) {
+    entity_set_remove((EntitySet*)data, message->entity);
+}
+
+static void entity_set_component_removed_remove(void* data, EcsComponentRemovedMessage* message) {
+    entity_set_remove((EntitySet*)data, message->entity);
+}
+
 EntitySet* ecs_entity_set_build(EntitySetBuilder* builder, EcsWorld world, bool free_builder) {
-    int id = ecs_dispenser_get(&set_manager.dispenser);
-    ECS_ARRAY_RESIZE(set_manager.sets, set_manager.capacity, id, sizeof(EntitySet));
-    EntitySet set = set_manager.sets[id];
+    EntitySet* set = ecs_malloc(sizeof(EntitySet));
 
-    set.with_count = builder->with_count;
-    set.without_count = builder->without_count;
+    set->with_count = builder->with_count;
+    set->without_count = builder->without_count;
 
-    set.mapping = NULL;
-    set.mapping_capacity = 0;
-    set.entities = NULL;
-    set.entity_capacity = 0;
-    set.last_index = -1;
-    set.world = world;
+    set->mapping = NULL;
+    set->mapping_capacity = 0;
+    set->entities = NULL;
+    set->entity_capacity = 0;
+    set->last_index = -1;
+    set->world = world;
 
     if(free_builder) {
-        set.with_components = builder->with_components;
-        set.without_components = builder->without_components;
-        set.with = builder->with;
-        set.without = builder->without;
+        set->with_components = builder->with_components;
+        set->without_components = builder->without_components;
+        set->with = builder->with;
+        set->without = builder->without;
 
         ecs_free(builder);
     } else {
-        set.with_components = malloc(sizeof(ComponentManager) * builder->with_count);
-        set.without_components = malloc(sizeof(ComponentManager*) * builder->without_count);
-        ecs_memcpy(set.with_components, builder->with_components, sizeof(ComponentManager*) * builder->with_count);
-        ecs_memcpy(set.without_components, builder->without_components, sizeof(ComponentManager*) * builder->without_count);
-        set.with = ecs_component_enum_copy(&builder->with);
-        set.without = ecs_component_enum_copy(&builder->without);
+        set->with_components = malloc(sizeof(ComponentManager*) * builder->with_count);
+        set->without_components = malloc(sizeof(ComponentManager*) * builder->without_count);
+        ecs_memcpy(set->with_components, builder->with_components, sizeof(ComponentManager*) * builder->with_count);
+        ecs_memcpy(set->without_components, builder->without_components, sizeof(ComponentManager*) * builder->without_count);
+        set->with = ecs_component_enum_copy(&builder->with);
+        set->without = ecs_component_enum_copy(&builder->without);
     }
 
-    set.with_subscriptions = malloc(sizeof(int) * builder->with_count);
-    set.without_subscriptions = malloc(sizeof(int) * builder->without_count);
+    set->entity_disposed_subscription = ecs_event_subscribe(world,
+                                                            ecs_entity_disposed,
+                                                            ecs_closure(set, entity_set_entity_disposed_remove));
 
-    return &set;
+    set->entity_disabled_subscription = ecs_event_subscribe(world,
+                                                            ecs_entity_disabled,
+                                                            ecs_closure(set, entity_set_entity_disabled_remove));
+
+    set->entity_enabled_subscription = ecs_event_subscribe(world,
+                                                           ecs_entity_enabled,
+                                                           ecs_closure(set, entity_set_entity_enabled_checked_add));
+
+    if(set->with_count == 0) {
+        set->entity_created_subscription = ecs_event_subscribe(world,
+                                                               ecs_entity_created,
+                                                               ecs_closure(set, entity_set_entity_created_add));
+    }
+
+    set->with_subscriptions = malloc(sizeof(int) * builder->with_count * 2);
+    set->without_subscriptions = malloc(sizeof(int) * builder->without_count * 2);
+
+    for(int i = 0; i < set->with_count; i++) {
+        set->with_subscriptions[i * 2] = ecs_event_subscribe(world,
+                                                             ecs_component_get_added_event(set->with_components[i]), 
+                                                             ecs_closure(set, entity_set_component_added_checked_add));
+
+        set->with_subscriptions[i * 2 + 1] = ecs_event_subscribe(world,
+                                                                 ecs_component_get_removed_event(set->with_components[i]),
+                                                                 ecs_closure(set, entity_set_component_removed_remove));
+    }
+
+    for(int i = 0; i < set->without_count; i++) {
+        set->without_subscriptions[i * 2] = ecs_event_subscribe(world,
+                                                                ecs_component_get_removed_event(set->without_components[i]),
+                                                                ecs_closure(set, entity_set_component_removed_checked_add));
+
+        set->without_subscriptions[i * 2 + 1] = ecs_event_subscribe(world,
+                                                                    ecs_component_get_added_event(set->without_components[i]),
+                                                                    ecs_closure(set, entity_set_component_added_remove));
+    }
+
+    return set;
+}
+
+void ecs_entity_set_free(EntitySet* set) {
+    for(int i = 0; i < set->with_count; i++) {
+        ecs_event_unsubscribe(set->world, 
+                              ecs_component_get_added_event(set->with_components[i]), 
+                              set->with_subscriptions[i * 2]);
+
+        ecs_event_unsubscribe(set->world,
+                              ecs_component_get_removed_event(set->with_components[i]),
+                              set->with_subscriptions[i * 2 + 1]);
+    }
+
+    for(int i = 0; i < set->without_count; i++) {
+        ecs_event_unsubscribe(set->world,
+                              ecs_component_get_removed_event(set->without_components[i]),
+                              set->without_subscriptions[i * 2]);
+
+        ecs_event_unsubscribe(set->world,
+                              ecs_component_get_added_event(set->without_components[i]),
+                              set->without_subscriptions[i * 2 + 1]);
+    }
+
+    ecs_free(set->with_subscriptions);
+    ecs_free(set->without_subscriptions);
+
+    if(set->with_count == 0)
+        ecs_event_unsubscribe(set->world,  ecs_entity_created, set->entity_created_subscription);
+
+    ecs_event_unsubscribe(set->world, ecs_entity_enabled, set->entity_enabled_subscription);
+    ecs_event_unsubscribe(set->world, ecs_entity_disabled, set->entity_disabled_subscription);
+    ecs_event_unsubscribe(set->world, ecs_entity_disposed, set->entity_disposed_subscription);
+
+    ecs_free(set->with_components);
+    ecs_free(set->without_components);
+
+    ecs_component_enum_free_resources(&set->with);
+    ecs_component_enum_free_resources(&set->without);
+
+    ecs_free(set->mapping);
+    ecs_free(set->entities);
+
+    ecs_free(set);
+}
+
+Entity* ecs_entity_set_get_entities(EntitySet* set, int* count) {
+    *count = set->last_index + 1;
+    return set->entities;
 }

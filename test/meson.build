@@ -38,6 +38,12 @@ system_test = executable('system_test',
                          include_directories: test_inc,
                          dependencies: deps)
 
+impl_test = executable('entity_system_impl',
+                       'ecs_entity_system_impl.c',
+                       link_with: myst_ecs,
+                       link_args: link_args,
+                       include_directories: inc)
+
 test('Dispenser Test', dispenser_test)
 test('World Test', world_test)
 test('Component Test', component_test)

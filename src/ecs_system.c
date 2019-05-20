@@ -69,9 +69,9 @@ void ecs_entity_system_init(EcsEntitySystem* system,
 {
     ecs_system_init(&system->base, ECS_SYSTEM_TYPE_ENTITY, preupdate, postupdate);
     system->world = world;
-    system->with = ecs_component_enum_copy(with);
+    system->with = with == NULL ? COMPONENT_ENUM_DEFAULT : ecs_component_enum_copy(with);
     ecs_component_enum_set_flag(&system->with, is_enabled_flag, true);
-    system->without = ecs_component_enum_copy(without);
+    system->without = without == NULL ? COMPONENT_ENUM_DEFAULT : ecs_component_enum_copy(without);
     system->update = update;
     ecs_event_add(system->base.dispose, ecs_closure(NULL, ecs_entity_system_free));
 }

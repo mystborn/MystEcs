@@ -9,39 +9,46 @@ check = c_comp.find_library('check',
                             dirs: check_lib)
 
 deps = [compat, check]
+test_link_args = link_args
+
+build_type = get_option('buildtype')
+
+if build_machine.system() == 'windows' and build_type == 'release'
+    test_link_args += '/NODEFAULTLIB:MSVCRTD'
+endif
 
 dispenser_test = executable('dispenser_test',
                             'ecs_dispenser_test.c',
                             link_with: myst_ecs,
-                            link_args: link_args,
+                            link_args: test_link_args,
                             include_directories: test_inc,
                             dependencies: deps)
 
 world_test = executable('world_test',
                         'ecs_world_test.c',
                         link_with: myst_ecs,
-                        link_args: link_args,
+                        link_args: test_link_args,
                         include_directories: test_inc,
                         dependencies: deps)
 
 component_test = executable('component_test',
                             'ecs_component_test.c',
                             link_with: myst_ecs,
-                            link_args: link_args,
+                            link_args: test_link_args,
                             include_directories: test_inc,
                             dependencies: deps)
 
 entity_set_test = executable('entity_set_test',
                                  'ecs_entity_set_test.c',
                                  link_with: myst_ecs,
-                                 link_args: link_args,
+                                 link_args: test_link_args,
                                  include_directories: test_inc,
                                  dependencies: deps)
 
 system_test = executable('system_test',
                          'ecs_system_test.c',
                          link_with: myst_ecs,
-                         link_args: link_args,
+                         link_args: test_link_args,
                          include_directories: test_inc,
                          dependencies: deps)
 

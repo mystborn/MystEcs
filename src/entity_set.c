@@ -1,4 +1,7 @@
-#include "ecs_entity_set.h"
+#include "entity_set.h"
+#include "ecs_messages.h"
+
+#include <stdio.h>
 
 struct EntitySetBuilder {
     ComponentManager** with_components;
@@ -65,7 +68,7 @@ void ecs_entity_set_with(EntitySetBuilder* builder, ComponentManager* manager) {
 }
 
 void ecs_entity_set_without(EntitySetBuilder* builder, ComponentManager* manager) {
-    ECS_ARRAY_RESIZE(builder->without_components, builder->without_capactiy, builder->without_count, sizeof(ComponentManager*));
+    ECS_ARRAY_RESIZE(builder->without_components, builder->without_capacity, builder->without_count, sizeof(ComponentManager*));
     builder->without_components[builder->without_count++] = manager;
     ecs_component_enum_set_flag(&builder->without, manager->flag, true);
 }
@@ -77,7 +80,7 @@ static void entity_set_add(EntitySet* set, Entity entity) {
     if(*index == -1) {
         *index = ++set->last_index;
 
-        ECS_ARRAY_RESIZE(set->entities, set->entity_capacity, *index, sizeof(int));
+        ECS_ARRAY_RESIZE(set->entities, set->entity_capacity, *index, sizeof(Entity));
 
         set->entities[*index] = entity;
     }
@@ -101,7 +104,7 @@ static void entity_set_remove(EntitySet* set, Entity entity) {
 }
 
 static inline bool entity_set_filter_enum(EntitySet* set, ComponentEnum* cenum) {
-    return ecs_component_enum_contains_enum(cenum, set->with) && ecs_component_enum_not_contains_enum(cenum, set->without);
+    return ecs_component_enum_contains_enum(cenum, &set->with) && ecs_component_enum_not_contains_enum(cenum, &set->without);
 }
 
 static void entity_set_entity_created_add(void* data, EcsEntityCreatedMessage* message) {
@@ -171,6 +174,9 @@ EntitySet* ecs_entity_set_build(EntitySetBuilder* builder, EcsWorld world, bool 
         set->without = ecs_component_enum_copy(&builder->without);
     }
 
+    ecs_component_enum_set_flag(&set->with, is_alive_flag, true);
+    ecs_component_enum_set_flag(&set->with, is_enabled_flag, true);
+
     set->entity_disposed_subscription = ecs_event_subscribe(world,
                                                             ecs_entity_disposed,
                                                             ecs_closure(set, entity_set_entity_disposed_remove));
@@ -189,8 +195,8 @@ EntitySet* ecs_entity_set_build(EntitySetBuilder* builder, EcsWorld world, bool 
                                                                ecs_closure(set, entity_set_entity_created_add));
     }
 
-    set->with_subscriptions = malloc(sizeof(int) * builder->with_count * 2);
-    set->without_subscriptions = malloc(sizeof(int) * builder->without_count * 2);
+    set->with_subscriptions = malloc(sizeof(int) * set->with_count * 2);
+    set->without_subscriptions = malloc(sizeof(int) * set->without_count * 2);
 
     for(int i = 0; i < set->with_count; i++) {
         set->with_subscriptions[i * 2] = ecs_event_subscribe(world,
@@ -210,6 +216,15 @@ EntitySet* ecs_entity_set_build(EntitySetBuilder* builder, EcsWorld world, bool 
         set->without_subscriptions[i * 2 + 1] = ecs_event_subscribe(world,
                                                                     ecs_component_get_added_event(set->without_components[i]),
                                                                     ecs_closure(set, entity_set_component_added_remove));
+    }
+
+    // Fill the set with existing components that match the component conditions.
+    int entity_count;
+    ComponentEnum* components = ecs_world_get_components(world, &entity_count);
+
+    for(int i = 0; i < entity_count; i++, components++) {
+        if(entity_set_filter_enum(set, components))
+            entity_set_add(set, (Entity){ .world = world, .id = i });
     }
 
     return set;

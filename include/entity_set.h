@@ -1,6 +1,7 @@
 #ifndef ECS_ENTITY_SET_H
 #define ECS_ENTITY_SET_H
 
+#include "ecs_common.h"
 #include "ecs_world.h"
 #include "component.h"
 
@@ -12,7 +13,7 @@ void ecs_entity_set_builder_free(EntitySetBuilder* builder);
 void ecs_entity_set_with(EntitySetBuilder* builder, ComponentManager* manager);
 void ecs_entity_set_without(EntitySetBuilder* builder, ComponentManager* manager);
 
-EntitySet* ecs_entity_set_build(EntitySetBuilder* builder, bool free_builder);
+EntitySet* ecs_entity_set_build(EntitySetBuilder* builder, EcsWorld world, bool free_builder);
 void ecs_entity_set_free(EntitySet* set);
 Entity* ecs_entity_set_get_entities(EntitySet* set, int* count);
 

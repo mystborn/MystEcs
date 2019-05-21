@@ -10,6 +10,7 @@
 #include "ecs_system.h"
 #include "ecs_event.h"
 #include "ecs_world.h"
+#include "entity_set.h"
 
 /// Initializes the various systems needed to use ecs.
 void ecs_init(void);

@@ -148,10 +148,9 @@ START_TEST(component_disabled_update_not_calls) {
 END_TEST
 
 START_TEST(entity_enabled_update_all) {
-    ComponentEnum with = COMPONENT_ENUM_DEFAULT;
-    ComponentEnum without = COMPONENT_ENUM_DEFAULT;
-    ecs_component_enum_set_flag(&with, bool_component->flag, true);
-    ecs_component_enum_set_flag(&without, int_component->flag, true);
+    EntitySetBuilder* builder = ecs_entity_set_builder_init();
+    ecs_entity_set_with(builder, bool_component);
+    ecs_entity_set_without(builder, int_component);
 
     EcsWorld world = ecs_world_init();
     Entity entity1 = ecs_create_entity(world);
@@ -162,10 +161,7 @@ START_TEST(entity_enabled_update_all) {
     bool* c3 = ecs_component_set(entity3, bool_component);
 
     EcsEntitySystem system;
-    ecs_entity_system_init(&system, world, &with, &without, entity_update, NULL, NULL);
-
-    ecs_component_enum_free_resources(&with);
-    ecs_component_enum_free_resources(&without);
+    ecs_entity_system_init(&system, world, builder, true, entity_update, NULL, NULL);
 
     ecs_system_update(&system, 0);
     ck_assert_msg(*c1 && *c2 && *c3, "Entity system failed to update for all entities");
@@ -175,10 +171,9 @@ START_TEST(entity_enabled_update_all) {
 END_TEST
 
 START_TEST(entity_enabled_update_some) {
-    ComponentEnum with = COMPONENT_ENUM_DEFAULT;
-    ComponentEnum without = COMPONENT_ENUM_DEFAULT;
-    ecs_component_enum_set_flag(&with, bool_component->flag, true);
-    ecs_component_enum_set_flag(&without, int_component->flag, true);
+    EntitySetBuilder* builder = ecs_entity_set_builder_init();
+    ecs_entity_set_with(builder, bool_component);
+    ecs_entity_set_without(builder, int_component);
 
     EcsWorld world = ecs_world_init();
     Entity entity1 = ecs_create_entity(world);
@@ -190,10 +185,7 @@ START_TEST(entity_enabled_update_some) {
     ecs_component_set(entity2, int_component);
 
     EcsEntitySystem system;
-    ecs_entity_system_init(&system, world, &with, &without, entity_update, NULL, NULL);
-
-    ecs_component_enum_free_resources(&with);
-    ecs_component_enum_free_resources(&without);
+    ecs_entity_system_init(&system, world, builder, true, entity_update, NULL, NULL);
 
     ecs_system_update(&system, 0);
     ck_assert_msg(*c1 && *c3 && !*c2, "Entity system failed to update for valid entities");
@@ -203,10 +195,9 @@ START_TEST(entity_enabled_update_some) {
 END_TEST
 
 START_TEST(entity_disabled_update_none) {
-    ComponentEnum with = COMPONENT_ENUM_DEFAULT;
-    ComponentEnum without = COMPONENT_ENUM_DEFAULT;
-    ecs_component_enum_set_flag(&with, bool_component->flag, true);
-    ecs_component_enum_set_flag(&without, int_component->flag, true);
+    EntitySetBuilder* builder = ecs_entity_set_builder_init();
+    ecs_entity_set_with(builder, bool_component);
+    ecs_entity_set_without(builder, int_component);
 
     EcsWorld world = ecs_world_init();
     Entity entity1 = ecs_create_entity(world);
@@ -217,12 +208,9 @@ START_TEST(entity_disabled_update_none) {
     bool* c3 = ecs_component_set(entity3, bool_component);
 
     EcsEntitySystem system;
-    ecs_entity_system_init(&system, world, &with, &without, entity_update, NULL, NULL);
+    ecs_entity_system_init(&system, world, builder, true, entity_update, NULL, NULL);
 
     ecs_system_disable(&system);
-
-    ecs_component_enum_free_resources(&with);
-    ecs_component_enum_free_resources(&without);
 
     ecs_system_update(&system, 0);
     ck_assert_msg(!(*c1 || *c2 || *c3), "Entity system updated invalid entities");

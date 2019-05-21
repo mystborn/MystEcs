@@ -6,6 +6,7 @@
 #include "ecs_common.h"
 #include "component.h"
 #include "entity.h"
+#include "entity_set.h"
 
 // The base type of an Ecs System.
 typedef struct EcsSystem EcsSystem;
@@ -62,8 +63,7 @@ struct EcsComponentSystem {
 
 struct EcsEntitySystem {
     EcsSystem base;
-    ComponentEnum with;
-    ComponentEnum without;
+    EntitySet* entities;
     EcsSystemUpdateEntity update;
     EcsWorld world;
 };
@@ -115,9 +115,9 @@ void ecs_component_system_init(EcsComponentSystem* system,
 // preupdate: The function to call before each update. Can be NULL.
 // postupdate: The function to call after each update. Can be NULL.
 void ecs_entity_system_init(EcsEntitySystem* system, 
-                            EcsWorld world, 
-                            ComponentEnum* with, 
-                            ComponentEnum* without, 
+                            EcsWorld world,
+                            EntitySetBuilder* builder,
+                            bool free_builder,
                             EcsSystemUpdateEntity update, 
                             EcsSystemPreupdate preupdate, 
                             EcsSystemPostupdate postupdate);

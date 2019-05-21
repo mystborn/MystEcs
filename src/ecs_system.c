@@ -3,6 +3,7 @@
 
 void ecs_system_init(EcsSystem* system, EcsSystemType type, EcsSystemPreupdate preupdate, EcsSystemPostupdate postupdate) {
     system->type = type;
+    system->enabled = true;
     system->preupdate = preupdate;
     system->postupdate = postupdate;
     system->dispose = ecs_event_init();
@@ -23,8 +24,7 @@ static void ecs_sequential_system_free(void* data, EcsSystem* system) {
 
 static void ecs_entity_system_free(void* data, EcsSystem* system) {
     EcsEntitySystem* entity_system = (EcsEntitySystem*)system;
-    ecs_component_enum_free_resources(&entity_system->with);
-    ecs_component_enum_free_resources(&entity_system->without);
+    ecs_entity_set_free(entity_system->entities);
 }
 
 void ecs_system_free_resources(EcsSystem* system) {
@@ -60,18 +60,16 @@ void ecs_component_system_init(EcsComponentSystem* system,
 }
 
 void ecs_entity_system_init(EcsEntitySystem* system, 
-                            EcsWorld world, 
-                            ComponentEnum* with, 
-                            ComponentEnum* without, 
+                            EcsWorld world,
+                            EntitySetBuilder* builder,
+                            bool free_builder,
                             EcsSystemUpdateEntity update, 
                             EcsSystemPreupdate preupdate, 
                             EcsSystemPostupdate postupdate)
 {
     ecs_system_init(&system->base, ECS_SYSTEM_TYPE_ENTITY, preupdate, postupdate);
     system->world = world;
-    system->with = with == NULL ? COMPONENT_ENUM_DEFAULT : ecs_component_enum_copy(with);
-    ecs_component_enum_set_flag(&system->with, is_enabled_flag, true);
-    system->without = without == NULL ? COMPONENT_ENUM_DEFAULT : ecs_component_enum_copy(without);
+    system->entities = ecs_entity_set_build(builder, world, free_builder);
     system->update = update;
     ecs_event_add(system->base.dispose, ecs_closure(NULL, ecs_entity_system_free));
 }
@@ -176,26 +174,24 @@ void ecs_system_update(EcsSystem* system, float delta_time) {
             break;
 
         case ECS_SYSTEM_TYPE_ENTITY:
-            // Todo: Create EntitySet struct that updates when entities are created/destroyed or components are added/removed
-            //       to increase the speed of this type of system.
+            // Originally this iterated over the components of all entities
+            // using ecs_world_get_components. The system had a with and without
+            // ComponentEnum field and for each entity it would compare against the fields.
+            // That version is actually FASTER if the components are being changed frequently
+            // (i.e. like every frame). Using an EntitySet is faster when the components aren't changing,
+            // which is the more general case, so it's used instead. If this is too large of a bottleneck,
+            // a hybrid solution may be applicable.
 
             EcsEntitySystem* entity_system = (EcsEntitySystem*)system;
             if(entity_system->update == NULL)
                 break;
 
-            Entity entity;
-            entity.world = entity_system->world;
-            ComponentEnum* entity_components = ecs_world_get_components(entity_system->world, &component_count);
+            int entity_count;
+            Entity* entities = ecs_entity_set_get_entities(entity_system->entities, &entity_count);
 
-            for(int i = 0; i < component_count; i++) {
-                if(ecs_component_enum_contains_enum(entity_components, &entity_system->with)
-                    && !ecs_component_enum_contains_enum(entity_components, &entity_system->without)) 
-                {
-                    entity.id = i;
-                    entity_system->update(entity_system, delta_time, entity);
-                }
-                entity_components++;
-            }
+            for(int i = 0; i < entity_count; i++)
+                entity_system->update(entity_system, delta_time, entities[i]);
+
             break;
     }
 

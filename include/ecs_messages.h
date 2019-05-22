@@ -8,63 +8,63 @@
 #include "entity.h"
 #include "ecs_event.h"
 
-// Message sent when an Entity is created.
+/// Message sent when an Entity is created.
 typedef struct EcsEntityCreatedMessage {
     Entity entity;
 } EcsEntityCreatedMessage;
 
-// Message sent when an Entity is freed.
+/// Message sent when an Entity is freed.
 typedef struct EcsEntityDisposedMessage {
     Entity entity;
 } EcsEntityDisposedMessage;
 
-// Message sent when an Entity is enabled.
+/// Message sent when an Entity is enabled.
 typedef struct EcsEntityEnabledMessage {
     Entity entity;
 } EcsEntityEnabledMessage;
 
-// Message sent when an Entity is disabled.
+/// Message sent when an Entity is disabled.
 typedef struct EcsEntityDisabledMessage {
     Entity entity;
 } EcsEntityDisabledMessage;
 
-// Message sent when a component is added to an entity. 
-// Will be reworked in the near future, so use with caution.
+/// Message sent when a component is added to an entity. 
+/// Will be reworked in the near future, so use with caution.
 typedef struct EcsComponentAddedMessage {
     Entity entity;
     ComponentManager* component_type;
     void* component;
 } EcsComponentAddedMessage;
 
-// Message set when a component is removed from an entity. 
-// Will be reworked in the near future, so use with caution.
+/// Message set when a component is removed from an entity. 
+/// Will be reworked in the near future, so use with caution.
 typedef struct EcsComponentRemovedMessage {
     Entity entity;
     ComponentManager* component_type;
     void* component;
 } EcsComponentRemovedMessage;
 
-// Message sent when a world is freed.
+/// Message sent when a world is freed.
 typedef struct EcsWorldDisposedMessage {
     EcsWorld world;
 } EcsWorldDisposedMessage;
 
-// Ecs Event that is triggered when an entity is created.
+/// Event manager that is triggered when an entity is created.
 extern EcsEventManager* ecs_entity_created;
 
-// Ecs Event that is triggered when an entity is freed.
+/// Event manager that is triggered when an entity is freed.
 extern EcsEventManager* ecs_entity_disposed;
 
-// Ecs Event that is triggered when an entity is enabled.
+/// Event manager that is triggered when an entity is enabled.
 extern EcsEventManager* ecs_entity_enabled;
 
-// Ecs Event that is triggered when an entity is disabled.
+/// Event manager that is triggered when an entity is disabled.
 extern EcsEventManager* ecs_entity_disabled;
 
-// An event that is triggered when a world is freed.
+/// An event that is triggered when a world is freed.
 extern EcsEvent* ecs_world_disposed;
 
-// Initializes the various events that utilize the messages.
+/// Initializes the various events that utilize the messages. Should not be called directly.
 void ecs_messages_init(void);
 
 

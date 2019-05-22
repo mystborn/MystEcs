@@ -19,8 +19,8 @@ struct EcsWorldManager {
 
 static struct EcsWorldManager world_manager;
 
-ComponentFlag is_alive_flag;
-ComponentFlag is_enabled_flag;
+ComponentFlag ecs_is_alive_flag;
+ComponentFlag ecs_is_enabled_flag;
 
 static void world_on_entity_disposed(void* data, EcsEntityDisposedMessage* message) {
     struct EcsWorldImpl* impl = data;
@@ -30,8 +30,8 @@ static void world_on_entity_disposed(void* data, EcsEntityDisposedMessage* messa
 }
 
 void ecs_world_system_init(void) {
-    is_alive_flag = ecs_component_flag_get();
-    is_enabled_flag = ecs_component_flag_get();
+    ecs_is_alive_flag = ecs_component_flag_get();
+    ecs_is_enabled_flag = ecs_component_flag_get();
 
     ecs_dispenser_init_start(&world_manager.dispenser, 1);
     world_manager.worlds = NULL;
@@ -83,8 +83,8 @@ Entity ecs_create_entity(EcsWorld world) {
     ECS_ARRAY_RESIZE_DEFAULT(impl->entity_components, impl->capacity, id, sizeof(ComponentEnum), COMPONENT_ENUM_DEFAULT);
     ComponentEnum* entity_components = impl->entity_components + id;
 
-    ecs_component_enum_set_flag(entity_components, is_alive_flag, true);
-    ecs_component_enum_set_flag(entity_components, is_enabled_flag, true);
+    ecs_component_enum_set_flag(entity_components, ecs_is_alive_flag, true);
+    ecs_component_enum_set_flag(entity_components, ecs_is_enabled_flag, true);
 
     Entity result = { world, id };
 
@@ -118,8 +118,8 @@ EcsResult ecs_entity_enable(Entity entity) {
         return ECS_RESULT_INVALID_ENTITY;
 
     ComponentEnum* components = impl->entity_components + entity.id;
-    if(!ecs_component_enum_get_flag(components, is_enabled_flag)) {
-        ecs_component_enum_set_flag(components, is_enabled_flag, true);
+    if(!ecs_component_enum_get_flag(components, ecs_is_enabled_flag)) {
+        ecs_component_enum_set_flag(components, ecs_is_enabled_flag, true);
         EcsEntityEnabledMessage message = { entity };
         ecs_event_publish(entity.world, ecs_entity_enabled, void (*)(void*, EcsEntityEnabledMessage*), &message);
 
@@ -138,8 +138,8 @@ EcsResult ecs_entity_disable(Entity entity) {
         return ECS_RESULT_INVALID_ENTITY;
 
     ComponentEnum* components = impl->entity_components + entity.id;
-    if(ecs_component_enum_get_flag(components, is_enabled_flag)) {
-        ecs_component_enum_set_flag(components, is_enabled_flag, false);
+    if(ecs_component_enum_get_flag(components, ecs_is_enabled_flag)) {
+        ecs_component_enum_set_flag(components, ecs_is_enabled_flag, false);
         EcsEntityDisabledMessage message = { entity };
         ecs_event_publish(entity.world, ecs_entity_disabled, void (*)(void*, EcsEntityDisabledMessage*), &message);
 
@@ -156,7 +156,7 @@ bool ecs_entity_is_alive(Entity entity) {
     struct EcsWorldImpl* impl = world_manager.worlds + entity.world;
     if((unsigned int)entity.id >= impl->capacity)
         return false;
-    return ecs_component_enum_get_flag(impl->entity_components + entity.id, is_alive_flag);
+    return ecs_component_enum_get_flag(impl->entity_components + entity.id, ecs_is_alive_flag);
 }
 
 bool ecs_entity_is_enabled(Entity entity) {
@@ -166,7 +166,7 @@ bool ecs_entity_is_enabled(Entity entity) {
     struct EcsWorldImpl* impl = world_manager.worlds + entity.world;
     if((unsigned int)entity.id >= impl->capacity)
         return false;
-    return ecs_component_enum_get_flag(impl->entity_components + entity.id, is_enabled_flag);
+    return ecs_component_enum_get_flag(impl->entity_components + entity.id, ecs_is_enabled_flag);
 }
 
 ComponentEnum* ecs_entity_get_components(Entity entity) {

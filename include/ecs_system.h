@@ -8,37 +8,37 @@
 #include "entity.h"
 #include "entity_set.h"
 
-// The base type of an Ecs System.
+/// The base type of an Ecs System.
 typedef struct EcsSystem EcsSystem;
 
-// A system that iterates over all active components of a specific type.
+/// A system that iterates over all active components of a specific type.
 typedef struct EcsComponentSystem EcsComponentSystem;
 
-// A system that iterates over all active entities with set of components.
+/// A system that iterates over all active entities with set of components.
 typedef struct EcsEntitySystem EcsEntitySystem;
 
-// A system that calls a function once per update.
+/// A system that calls a function once per update.
 typedef struct EcsActionSystem EcsActionSystem;
 
-// A system that updates any number of subsystems on update.
+/// A system that updates any number of subsystems on update.
 typedef struct EcsSequentialSystem EcsSequentialSystem;
 
-// A function that is called before a system update.
+/// A function that is called before a system update.
 typedef void (*EcsSystemPreupdate)(EcsSystem*, float);
 
-// A function that is called after a system update.
+/// A function that is called after a system update.
 typedef void (*EcsSystemPostupdate)(EcsSystem*, float);
 
-// A function that is called when an EcsComponentSystem updates.
+/// A function that is called when an EcsComponentSystem updates.
 typedef void (*EcsSystemUpdateComponent)(EcsComponentSystem*, float, void*);
 
-// A function that is called when an EcsEntitySystem updates.
+/// A function that is called when an EcsEntitySystem updates.
 typedef void (*EcsSystemUpdateEntity)(EcsEntitySystem*, float, Entity);
 
-// A function that is called when an EcsActionSystem updates.
+/// A function that is called when an EcsActionSystem updates.
 typedef void (*EcsSystemUpdateAction)(EcsActionSystem*, float);
 
-// Tags each system with its respective type.
+/// Tags each system with its respective type.
 typedef enum EcsSystemType {
     ECS_SYSTEM_TYPE_COMPONENT,
     ECS_SYSTEM_TYPE_ENTITY,
@@ -80,25 +80,32 @@ struct EcsSequentialSystem {
     bool free_children;
 };
 
-// Initializes an EcsSystem. Should not be called directly.
+/// Initializes an EcsSystem. Should not be called directly.
 void ecs_system_init(EcsSystem* system, EcsSystemType type, EcsSystemPreupdate preupdate, EcsSystemPostupdate postupdate);
 
-// Frees all of the resources held by a system, and calls it's dispose event. Does not free the system.
+/// Frees all of the resources held by a system, and calls it's dispose event. Does not free the system.
 void ecs_system_free_resources(EcsSystem* system);
 
-// Enables a previously disabled system. Returns true if the system was successfully enabled.
+/// Enables a previously disabled system. Returns true if the system was successfully enabled.
 bool ecs_system_enable(EcsSystem* system);
 
-// Disables an enabled system. Returns true if the system was successfully disabled.
+/// Disables an enabled system. Returns true if the system was successfully disabled.
 bool ecs_system_disable(EcsSystem* system);
 
-// Initializes an EcsComponentSystem.
-// system: The EcsComponentSystem to initialize.
-// world: The world to get the components from.
-// component_type: The type of the component to get.
-// update: The function to call each frame. Can be NULL.
-// preupdate: The function to call before each update. Can be NULL.
-// postupdate: The function to call after each update. Can be NULL.
+/// Gets the dispose event from a system. Can be used with 
+/// any type as long as its first member is a system.
+#define ecs_system_get_dispose_event(system) ((EcsSystem*)(system))->dispose
+
+/*!
+    \brief Initializes a component system.
+
+    \param system The component system to initialize.
+    \param world The to get the components from.
+    \param component_type The type of the component to get.
+    \param update The function to call each frame. Can be NULL.
+    \param preupdate The function to call before each update. Can be NULL.
+    \param postupdate The function to call after each update. Can be NULL.
+ */
 void ecs_component_system_init(EcsComponentSystem* system, 
                                EcsWorld world, 
                                ComponentManager* component_type, 
@@ -106,14 +113,17 @@ void ecs_component_system_init(EcsComponentSystem* system,
                                EcsSystemPreupdate preupdate, 
                                EcsSystemPostupdate postupdate);
 
-// Initializes an EcsEntitySystem.
-// system: The EcsEntitySystem to initialize.
-// world: The world to get the entities from.
-// with: The components that each entity must have.
-// without: The components that each entity must not have.
-// update: The function to call each frame. Can be NULL.
-// preupdate: The function to call before each update. Can be NULL.
-// postupdate: The function to call after each update. Can be NULL.
+/*!
+    \brief Initializes an entity system.
+
+    \param system The entity system to initialize.
+    \param world The world to get the entities from.
+    \param with The components that each entity must have.
+    \param without The components that each entity must not have.
+    \param update The function to call each frame. Can be NULL.
+    \param preupdate The function to call before each update. Can be NULL.
+    \param postupdate The function to call after each update. Can be NULL.
+ */
 void ecs_entity_system_init(EcsEntitySystem* system, 
                             EcsWorld world,
                             EntitySetBuilder* builder,
@@ -122,24 +132,30 @@ void ecs_entity_system_init(EcsEntitySystem* system,
                             EcsSystemPreupdate preupdate, 
                             EcsSystemPostupdate postupdate);
 
-// Initializes an EcsActionSystem.
-// system: The EcsActionSystem to initialize.
-// update: The function to call each frame. Can be NULL.
-// preupdate: The function to call before each update. Can be NULL.
-// postupdate: The function to call after each update. Can be NULL.
+/*!
+    \brief Initializes an action system.
+
+    \param system The action system to initialize.
+    \param update The function to call each frame. Can be NULL.
+    \param preupdate The function to call before each update. Can be NULL.
+    \param postupdate The function to call after each update. Can be NULL.
+ */
 void ecs_action_system_init(EcsActionSystem* system, 
                             EcsSystemUpdateAction update, 
                             EcsSystemPreupdate preupdate, 
                             EcsSystemPostupdate postupdate);
 
-// Initializes an EcsSequentialSystem with the children systems provided using varargs.
-// system: The EcsSequentialSystem to initialize.
-// preupdate: The function to call before each update. Can be NULL.
-// postupdate: The function to call after each update. Can be NULL.
-// free_children: Determines if the children systems are freed with 
-//                their resources when the sequential system is freed.
-// count: The number of children systems given to this function.
-// ...: The children systems to add to the sequential system.
+/*!
+    \brief Initializes a sequential system with the children systems provided using varargs.
+
+    \param system The sequential system to initialize.
+    \param preupdate The function to call before each update. Can be NULL.
+    \param postupdate The function to call after each update. Can be NULL.
+    \param free_children Determines if the children systems are freed with 
+                         their resources when the sequential system is freed.
+    \param count The number of children systems given to this function.
+    \param ... The children systems to add to the sequential system.
+ */
 void ecs_sequential_system_init(EcsSequentialSystem* system, 
                                 EcsSystemPreupdate preupdate, 
                                 EcsSystemPostupdate postupdate,
@@ -147,15 +163,18 @@ void ecs_sequential_system_init(EcsSequentialSystem* system,
                                 int count, 
                                 ...);
 
-// Initializes an EcsSequentialSystem with the children systems provided using an array. The values are copied. 
-// system: The EcsSequentialSystem to initialize.
-// preupdate: The function to call before each update. Can be NULL.
-// postupdate: The function to call after each update. Can be NULL.
-// free_children: Determines if the children systems are freed with 
-//                their resources when the sequential system is freed.
-// count: The number of children systems inside of the systems array.
-// systems: The systems to add to the sequential system. 
-//          The values are copied from the array, so it can be safely freed after the function has been called.
+/*!
+    \brief Initializes a sequential system with the children systems provided using an array. The values are copied.
+
+    \param system The sequential system to initialize.
+    \param preupdate:The function to call before each update. Can be NULL.
+    \param postupdate The function to call after each update. Can be NULL.
+    \param free_children Determines if the children systems are freed with 
+                         their resources when the sequential system is freed.
+    \param count The number of children systems inside of the systems array.
+    \param systems The systems to add to the sequential system. 
+                   The values are copied from the array, so it can be safely freed after the function has been called.
+ */
 void ecs_sequential_system_init_array(EcsSequentialSystem* system, 
                                       EcsSystemPreupdate preupdate, 
                                       EcsSystemPostupdate postupdate,
@@ -163,14 +182,17 @@ void ecs_sequential_system_init_array(EcsSequentialSystem* system,
                                       int count,
                                       EcsSystem** systems);
 
-// Initializes an EcsSequentialSystem with the children provided by a va_list.
-// system: The EcsSequentialSystem to initialize.
-// preupdate: The function to call before each update. Can be NULL.
-// postupdate: The function to call after each update. Can be NULL.
-// free_children: Determines if the children systems are freed with 
-//                their resources when the sequential system is freed.
-// count: The number of children systems inside of the va_list.
-// systems: A va_list containing children systems to add to the sequential system.
+/*!
+    \brief Initializes a sequential system with the children provided by a va_list.
+
+    \param system The sequential system to initialize.
+    \param preupdate The function to call before each update. Can be NULL.
+    \param postupdate The function to call after each update. Can be NULL.
+    \param free_children Determines if the children systems are freed with 
+                         their resources when the sequential system is freed.
+    \param count The number of children systems inside of the va_list.
+    \param systems A va_list containing children systems to add to the sequential system.
+ */
 void ecs_sequential_system_init_list(EcsSequentialSystem* system, 
                                      EcsSystemPreupdate preupdate, 
                                      EcsSystemPostupdate postupdate,
@@ -178,9 +200,12 @@ void ecs_sequential_system_init_list(EcsSequentialSystem* system,
                                      int count,
                                      va_list list);
 
-// Updates a system.
-// system: The system to update.
-// delta_time: The delta time since the last update to pass to the update function.
+/*!
+    \brief Updates a system.
+
+    \param system The system to update.
+    \delta_time The time since the last update.
+ */
 void ecs_system_update(EcsSystem* system, float delta_time);
 
 #endif

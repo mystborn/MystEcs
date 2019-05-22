@@ -3,7 +3,7 @@
 
 #include "ecs_common.h"
 
-// A helper struct that efficiently handles open array indexes.
+/// A helper struct that efficiently handles open array indexes.
 typedef struct IntDispenser {
     int* free_ints;
     int free_count;
@@ -11,7 +11,7 @@ typedef struct IntDispenser {
     int total;
 } IntDispenser;
 
-// Initializes an int dispenser.
+/// Initializes an int dispenser.
 static inline void ecs_dispenser_init(IntDispenser* id) {
     id->free_ints = NULL;
     id->free_count = 0;
@@ -19,7 +19,7 @@ static inline void ecs_dispenser_init(IntDispenser* id) {
     id->total = 0;
 }
 
-// Initializes an int dispenser with a given starting point.
+/// Initializes an int dispenser with a given starting point.
 static inline void ecs_dispenser_init_start(IntDispenser* id, int start) {
     id->free_ints = NULL;
     id->free_count = 0;
@@ -27,20 +27,20 @@ static inline void ecs_dispenser_init_start(IntDispenser* id, int start) {
     id->total = start;
 }
 
-// Frees all resources owned by an int dispenser. Does not free the dispenser.
+/// Frees all resources owned by an int dispenser. Does not free the dispenser.
 static inline void ecs_dispenser_free_resources(IntDispenser* id) {
     if(id->free_ints != NULL)
         ecs_free(id->free_ints);
 }
 
-// Frees all resources owned by an int dispenser and frees the dispenser.
+/// Frees all resources owned by an int dispenser and frees the dispenser.
 static inline void ecs_dispenser_free(IntDispenser* id) {
     if(id->free_ints != NULL)
         ecs_free(id->free_ints);
     ecs_free(id);
 }
 
-// Gets an open index.
+/// Gets an open index.
 static inline int ecs_dispenser_get(IntDispenser* id) {
     if(id->free_count == 0)
         return id->total++;
@@ -48,7 +48,7 @@ static inline int ecs_dispenser_get(IntDispenser* id) {
         return id->free_ints[--id->free_count];
 }
 
-// Releases an index to be used later.
+/// Releases an index to be used later.
 static inline void ecs_dispenser_release(IntDispenser* id, int value) {
     ECS_ARRAY_RESIZE(id->free_ints, id->free_capacity, id->free_count + 1, sizeof(*id->free_ints));
     id->free_ints[id->free_count++] = value;

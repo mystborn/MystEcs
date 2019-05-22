@@ -174,8 +174,8 @@ EntitySet* ecs_entity_set_build(EntitySetBuilder* builder, EcsWorld world, bool 
         set->without = ecs_component_enum_copy(&builder->without);
     }
 
-    ecs_component_enum_set_flag(&set->with, is_alive_flag, true);
-    ecs_component_enum_set_flag(&set->with, is_enabled_flag, true);
+    ecs_component_enum_set_flag(&set->with, ecs_is_alive_flag, true);
+    ecs_component_enum_set_flag(&set->with, ecs_is_enabled_flag, true);
 
     set->entity_disposed_subscription = ecs_event_subscribe(world,
                                                             ecs_entity_disposed,

@@ -3,11 +3,14 @@
 
 #include <stdio.h>
 
-// Resizes an array to be at least new_size big.
-// array: The array to resize.
-// current_size: The amount of elements that can currently be safely be added to the array.
-// new_size: The size that the array must be big enough to support.
-// element_size: The size of the array element type.
+/*!
+  \brief Ensures that the an array is large enough to have a specified index.
+
+  \param array The array to potentially resize.
+  \param current_size The current length of the array.
+  \param new_size The index that the array must be large enough to support.
+  \param element_size The size of the array element type.
+ */
 #define ECS_ARRAY_RESIZE(array, current_size, new_size, element_size) \
     do { \
         if((current_size) <= (new_size)) { \
@@ -22,12 +25,16 @@
         } \
     } while(0)
 
-// Resizes an array to be at least new_size big, and sets the value of all new elements to the specified default value.
-// array: The array to resize.
-// current_size: The amount of elements that can currently be safely be added to the array.
-// new_size: The size that the array must be big enough to support.
-// element_size: The size of the array element type.
-// default_value: The default value to set the new elements of the array.
+/*!
+  \brief Resizes an array to be at least new_size big, and sets the value of all new elements to the specified default value.
+         This macro won't work on arrays whose actual type is different than element_size.
+
+  \param array The array to potentially resize.
+  \param current_size The current length of the array.
+  \param new_size The index that the array must be large enough to support.
+  \param element_size The size of the array element type.
+  \param default_value The default value to set the new elements of the array.
+ */
 #define ECS_ARRAY_RESIZE_DEFAULT(array, current_size, new_size, element_size, default_value) \
     do { \
         if((current_size) <= (new_size)) { \

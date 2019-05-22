@@ -60,10 +60,6 @@ else
 
 endif
 
-
-# check (the unit testing library) doesn't work on x64 (or at least I can't get it to work)
-# so we just ignore tests on that arch monkaS.
-# If you know how make this work, please let me know.
-if x86 and check_location != ''
+if check_location != ''
     subdir('test')
 endif

@@ -29,6 +29,7 @@ static void ecs_entity_system_free(void* data, EcsSystem* system) {
 
 void ecs_system_free_resources(EcsSystem* system) {
     ecs_event_trigger(system->dispose, void (*)(void*, EcsSystem*), system);
+    ecs_event_free(system->dispose);
 }
 
 bool ecs_system_enable(EcsSystem* system) {

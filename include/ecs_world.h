@@ -1,5 +1,5 @@
-#ifndef ECS_WORLD_H
-#define ECS_WORLD_H
+#ifndef ECS_ECS_WORLD_H
+#define ECS_ECS_WORLD_H
 
 // EcsWorld is defined in entity.h
 

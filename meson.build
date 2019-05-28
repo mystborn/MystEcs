@@ -1,28 +1,10 @@
 project('myst_ecs', 'c', version: '0.0.2', license: 'MIT')
 
 c_comp = meson.get_compiler('c')
-x86 = get_option('x86')
 check_location = get_option('check_location')
 
 args = []
 link_args = []
-
-if x86
-    if build_machine.system() == 'windows'
-        args += '/arch:SSE2'
-        link_args += '/MACHINE:X86'
-    else
-        args += '-march=i386'
-    endif
-else
-    if build_machine.system() == 'windows'
-        args += '/arch:AVX2'
-        link_args += '/MACHINE:X64'
-    else
-        args += '-march=x86-64'
-    endif
-endif
-
 
 include_files = ['include']
 

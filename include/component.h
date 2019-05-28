@@ -1,3 +1,11 @@
+/*!
+ * @file
+ * 
+ * \brief Defines the component part of the entity-component system.
+ *
+ * This header defines structs/functions to set, remove and otherwise interfaces with
+ * components.
+ */
 #ifndef ECS_COMPONENT_H
 #define ECS_COMPONENT_H
 
@@ -19,12 +27,9 @@ typedef struct ComponentManager {
     /// The unique identifer of this component type.
     ComponentFlag flag;
 
-    // A function that will be called when a component is created.
-    // Can be NULL.
-    ComponentConstructor constructor;
+/// \privatesection
 
-    // A function that will be called when a component is destroyed.
-    // Can be NULL.
+    ComponentConstructor constructor;
     ComponentDestructor destructor;
 
     EcsEventManager* added;
@@ -48,6 +53,7 @@ typedef struct ComponentManager {
   ECS_COMPONENT_ITERATE_ENABLED_START and ECS_COMPONENT_ITERATE_ENABLED_END
  */
 typedef struct ComponentIterator {
+/// \privatesection
     ComponentEnum flag;
     struct ComponentPool* pool;
     ComponentEnum* components;

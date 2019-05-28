@@ -3,9 +3,6 @@ project('myst_ecs', 'c', version: '0.0.2', license: 'MIT')
 c_comp = meson.get_compiler('c')
 check_location = get_option('check_location')
 
-args = []
-link_args = []
-
 include_files = ['include']
 
 inc = include_directories(include_files)

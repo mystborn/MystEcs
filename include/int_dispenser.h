@@ -1,3 +1,12 @@
+/*!
+ * @file
+ *
+ * \brief A utility class that gets open ids.
+ *
+ * This header defines a utility struct that gets open ids.
+ * Typically used to keep elements in an array as close together as possible
+ * without sacrificing much performance.
+ */
 #ifndef ECS_INT_DISPENSER
 #define ECS_INT_DISPENSER
 
@@ -5,6 +14,7 @@
 
 /// A helper struct that efficiently handles open array indexes.
 typedef struct IntDispenser {
+/// \privatesection
     int* free_ints;
     int free_count;
     int free_capacity;

@@ -6,5 +6,4 @@ This project uses [Meson](https://mesonbuild.com/) as it's build system, so apol
 
 | Option | Type | Description | Default |
 | --- | --- | --- | --- |
-| x86 | bool | Determines whether to target x86 or x64. | true |
 | check_location | string | Path to [check](https://libcheck.github.io/check/web/install.html) unit test library. Leave blank to exclude tests | '' |

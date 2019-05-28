@@ -1,3 +1,12 @@
+/*!
+ * @file
+ * 
+ * \brief Array resize utilities.
+ *
+ * This header defines a couple of macros that help
+ * with resizing arrays. Nothing in them is library specific,
+ * so it's safe to use within your own code.
+ */
 #ifndef ECS_ECS_ARRAY_H
 #define ECS_ECS_ARRAY_H
 

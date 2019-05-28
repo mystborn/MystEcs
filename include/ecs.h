@@ -1,3 +1,12 @@
+/*!
+ * @file
+ *
+ * \brief Includes all necessary files to use ecs.
+ *
+ * A file that imports all of ecs in one header. 
+ * These types of files are generally frowned upon, 
+ * but I've found that it barely adds any compilation time.
+ */
 #ifndef ECS_ECS_H
 #define ECS_ECS_H
 

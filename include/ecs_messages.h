@@ -1,3 +1,11 @@
+/*!
+ * @file
+ *
+ * \brief Event parameters used by MystEcs.
+ *
+ * This header defines the event parameters that are passed to events invoked by MystEcs,
+ * as well as the event types themselves.
+ */
 #ifndef ECS_ECS_MESSAGES_H
 #define ECS_ECS_MESSAGES_H
 
@@ -10,42 +18,60 @@
 
 /// Message sent when an Entity is created.
 typedef struct EcsEntityCreatedMessage {
+    /// The entity that was created.
     Entity entity;
 } EcsEntityCreatedMessage;
 
 /// Message sent when an Entity is freed.
 typedef struct EcsEntityDisposedMessage {
+    /// The entity that was freed.
     Entity entity;
 } EcsEntityDisposedMessage;
 
 /// Message sent when an Entity is enabled.
 typedef struct EcsEntityEnabledMessage {
+    /// The entity that was enabled.
     Entity entity;
 } EcsEntityEnabledMessage;
 
 /// Message sent when an Entity is disabled.
 typedef struct EcsEntityDisabledMessage {
+    /// The entity that was disabled.
     Entity entity;
 } EcsEntityDisabledMessage;
+
+// Todo: Remove the component field from 
+//       EcsComponentAddedMessage and EcsComponentRemovedMessage.
 
 /// Message sent when a component is added to an entity. 
 /// Will be reworked in the near future, so use with caution.
 typedef struct EcsComponentAddedMessage {
+    /// The entity that had a component added to.
     Entity entity;
+
+    /// The type of the component added to the entity.
     ComponentManager* component_type;
+
+    /// The actual component added to the entity.
     void* component;
 } EcsComponentAddedMessage;
 
 /// Message set when a component is removed from an entity. 
 /// Will be reworked in the near future, so use with caution.
 typedef struct EcsComponentRemovedMessage {
+    /// The entity that the component was removed from.
     Entity entity;
+
+    /// The type of the component that was removed.
     ComponentManager* component_type;
+
+    /// The actual value of the component that was removed.
     void* component;
 } EcsComponentRemovedMessage;
 
 /// Message sent when a world is freed.
 typedef struct EcsWorldDisposedMessage {
+    /// The world that was freed.
     EcsWorld world;
 } EcsWorldDisposedMessage;
 

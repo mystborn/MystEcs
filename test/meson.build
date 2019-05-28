@@ -9,7 +9,7 @@ check = c_comp.find_library('check',
                             dirs: check_lib)
 
 deps = [compat, check]
-test_link_args = link_args
+test_link_args = []
 
 build_type = get_option('buildtype')
 

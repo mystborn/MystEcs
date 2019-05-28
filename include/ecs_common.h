@@ -1,3 +1,8 @@
+/*!
+ * @file
+ *
+ * \brief Common functionality that will be used by almost all files.
+ */
 #ifndef ECS_ECS_COMMON_H
 #define ECS_ECS_COMMON_H
 
@@ -28,11 +33,21 @@
 #define ecs_memcpy memcpy
 #define ecs_memset memset
 
+/// A named constant that can be used to identify function success or cause of failure.
 typedef enum EcsResult {
+    /// The function returned properly.
     ECS_RESULT_SUCCESS,
+
+    /// An operation involved two entities that were on different worlds.
     ECS_RESULT_DIFFERENT_WORLD,
+
+    /// The function encountered an invalid entity.
     ECS_RESULT_INVALID_ENTITY,
+
+    /// Failed to changed the state of something.
     ECS_RESULT_INVALID_STATE,
+
+    /// The function encountered an invalid world.
     ECS_RESULT_INVALID_WORLD
 } EcsResult;
 

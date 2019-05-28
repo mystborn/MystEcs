@@ -1,3 +1,8 @@
+/*!
+ * @file
+ *
+ * \brief Component type Set utilities. 
+ */
 #ifndef ECS_COMPONENT_FLAG_H
 #define ECS_COMPONENT_FLAG_H
 
@@ -21,10 +26,10 @@ typedef long long ComponentFlag;
 /// Gets the bit portion of a ComponentFlag.
 #define COMPONENT_FLAG_BIT(f)   ((f) & COMPONENT_FLAG_BIT_MASK)
 
-// Internal use.
+/// \private
 extern ComponentFlag ___ecs_last_component_flag;
 
-// Internal use.
+/// \private
 static inline ComponentFlag ecs_component_flag_get() {
     ComponentFlag flag = ___ecs_last_component_flag;
     ___ecs_last_component_flag = (flag & COMPONENT_FLAG_BIT_MASK) != 0x80000000 ? ((flag & COMPONENT_FLAG_INDEX_MASK) | ((flag & COMPONENT_FLAG_BIT_MASK) << 1)) :
@@ -35,6 +40,7 @@ static inline ComponentFlag ecs_component_flag_get() {
 
 /// Contains a set of ComponentFlags.
 typedef struct ComponentEnum {
+/// \privatesection
     unsigned int* bit_array;
     int count;
 } ComponentEnum;

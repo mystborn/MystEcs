@@ -1,3 +1,9 @@
+/*!
+ * @file
+ *
+ * \brief Generic c# like events as well as an event manager that spreads an event type over
+ * each world instance.
+ */
 #ifndef ECS_ECS_EVENT_H
 #define ECS_ECS_EVENT_H
 
@@ -7,8 +13,20 @@
 
 /// A very simple closure implementation that has an environment and a function.
 typedef struct EcsClosure {
+    /// The called or environment of the closure.
     void* data;
+
+    /*!
+       \brief The function pointer that the closure will invoke.
+       
+       Technically this is not proper C, as a function pointer is not
+       guarunteed to fit in a void*, but it will on most modern
+       systems, which is the target audience of this library,
+       so this is fine. This is valid on POSIX compliant systems.
+     */
     void* function;
+
+/// \privatesection
     bool active;
 } EcsClosure;
 
@@ -17,6 +35,7 @@ typedef struct EcsClosure {
 
 /// A C# like event.
 typedef struct EcsEvent {
+/// \privatesection
     IntDispenser dispenser;
     EcsClosure* subscriptions;
     int capacity;
@@ -24,6 +43,7 @@ typedef struct EcsEvent {
 
 /// Manages an event type that should be specific to each EcsWorld, but used by all of them.
 typedef struct EcsEventManager {
+/// \privatesection
     EcsEvent** events;
     int capacity;
     int id;

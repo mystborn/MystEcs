@@ -1,8 +1,3 @@
-/*!
- * @file
- *
- * \brief Component type Set utilities. 
- */
 #ifndef ECS_COMPONENT_FLAG_H
 #define ECS_COMPONENT_FLAG_H
 

@@ -15,10 +15,15 @@
 /*!
   \brief Ensures that the an array is large enough to have a specified index.
 
+  Here is some extra documentation to see how it is parsed by doxygen.
+
   \param array The array to potentially resize.
   \param current_size The current length of the array.
   \param new_size The index that the array must be large enough to support.
   \param element_size The size of the array element type.
+
+  \remark SECTION Utilities
+  \sa ECS_ARRAY_RESIZE_DEFAULT
  */
 #define ECS_ARRAY_RESIZE(array, current_size, new_size, element_size) \
     do { \

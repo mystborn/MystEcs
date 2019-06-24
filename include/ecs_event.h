@@ -1,9 +1,3 @@
-/*!
- * @file
- *
- * \brief Generic c# like events as well as an event manager that spreads an event type over
- * each world instance.
- */
 #ifndef ECS_ECS_EVENT_H
 #define ECS_ECS_EVENT_H
 

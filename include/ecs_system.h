@@ -1,10 +1,3 @@
-/*!
- * @file
- *
- * \brief The system part of entity-component-system.
- * 
- * This header defines system types that can be "inherited" from via struct composition.
- */
 #ifndef ECS_ECS_SYSTEM_H
 #define ECS_ECS_SYSTEM_H
 

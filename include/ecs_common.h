@@ -1,8 +1,3 @@
-/*!
- * @file
- *
- * \brief Common functionality that will be used by almost all files.
- */
 #ifndef ECS_ECS_COMMON_H
 #define ECS_ECS_COMMON_H
 
@@ -36,7 +31,7 @@
 /// A named constant that can be used to identify function success or cause of failure.
 typedef enum EcsResult {
     /// The function returned properly.
-    ECS_RESULT_SUCCESS,
+    ECS_RESULT_SUCCESS = 0,
 
     /// An operation involved two entities that were on different worlds.
     ECS_RESULT_DIFFERENT_WORLD,

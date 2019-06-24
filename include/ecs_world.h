@@ -1,8 +1,3 @@
-/*!
- * @file
- *
- * \brief Defines operations that can be performed on/with a world.
- */
 #ifndef ECS_ECS_WORLD_H
 #define ECS_ECS_WORLD_H
 

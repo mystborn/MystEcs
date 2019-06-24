@@ -1,11 +1,3 @@
-/*!
- * @file
- *
- * \brief Event parameters used by MystEcs.
- *
- * This header defines the event parameters that are passed to events invoked by MystEcs,
- * as well as the event types themselves.
- */
 #ifndef ECS_ECS_MESSAGES_H
 #define ECS_ECS_MESSAGES_H
 

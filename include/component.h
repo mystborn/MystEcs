@@ -1,11 +1,3 @@
-/*!
- * @file
- * 
- * \brief Defines the component part of the entity-component system.
- *
- * This header defines structs/functions to set, remove and otherwise interfaces with
- * components.
- */
 #ifndef ECS_COMPONENT_H
 #define ECS_COMPONENT_H
 

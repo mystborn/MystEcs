@@ -1,19 +1,31 @@
 check_lib = check_location + '/lib'
 
-compat = c_comp.find_library('compat',
-                             required: true,
-                             dirs: check_lib)
+if build_machine.system() == 'windows'
 
-check = c_comp.find_library('check',
-                            required: true,
-                            dirs: check_lib)
+    compat = c_comp.find_library('compat',
+                                 required: true,
+                                 dirs: check_lib)
+    
+    check = c_comp.find_library('check',
+                                required: true,
+                                dirs: check_lib)
+    
+    deps = [compat, check]
 
-deps = [compat, check]
+else
+
+    check = c_comp.find_library('check',
+        required: true)
+    
+    deps = [check]
+
+endif
+
 test_link_args = []
 
 build_type = get_option('buildtype')
 
-if build_machine.system() == 'windows' and build_type == 'release'
+if c_comp.get_id() == 'msvc' and build_type == 'release'
     test_link_args += '/NODEFAULTLIB:MSVCRTD'
 endif
 

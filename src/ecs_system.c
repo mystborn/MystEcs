@@ -1,5 +1,5 @@
-#include "ecs_system.h"
-#include "ecs_world.h"
+#include <ecs_system.h>
+#include <ecs_world.h>
 
 void ecs_system_init(EcsSystem* system, EcsSystemType type, EcsSystemPreupdate preupdate, EcsSystemPostupdate postupdate) {
     system->type = type;
@@ -144,24 +144,26 @@ void ecs_system_update(EcsSystem* system, float delta_time) {
     if(system->preupdate != NULL)
         system->preupdate(system, delta_time);
 
-    int component_count;
-
     switch(system->type) 
     {
         case ECS_SYSTEM_TYPE_ACTION:
+        {
             EcsSystemUpdateAction action = ((EcsActionSystem*)system)->update;
             if(action != NULL)
                 action((EcsActionSystem*)system, delta_time);
             break;
+        }
 
         case ECS_SYSTEM_TYPE_SEQUENTIAL:
+        {
             EcsSequentialSystem* seq_system = (EcsSequentialSystem*)system;
             for(int i = 0; i < seq_system->count; ++i) {
                 ecs_system_update(seq_system->systems[i], delta_time);
             }
             break;
-
+        }
         case ECS_SYSTEM_TYPE_COMPONENT:
+        {
             EcsComponentSystem* component_system = (EcsComponentSystem*)system;
             if(component_system->update == NULL)
                 break;
@@ -173,8 +175,9 @@ void ecs_system_update(EcsSystem* system, float delta_time) {
 
             ECS_COMPONENT_ITERATE_ENABLED_END()
             break;
-
+        }
         case ECS_SYSTEM_TYPE_ENTITY:
+        {
             // Originally this iterated over the components of all entities
             // using ecs_world_get_components. The system had a with and without
             // ComponentEnum field and for each entity it would compare against the fields.
@@ -194,6 +197,7 @@ void ecs_system_update(EcsSystem* system, float delta_time) {
                 entity_system->update(entity_system, delta_time, entities[i]);
 
             break;
+        }
     }
 
     if(system->postupdate != NULL)

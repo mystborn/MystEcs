@@ -21,22 +21,19 @@ if build_machine.system() == 'windows'
     myst_ecs = static_library('myst_ecs',
                               lib_sources,
                               include_directories: inc,
-                              link_args: link_args,
-                              c_args: args,
                               name_suffix: 'lib')
 
     shared_library('myst_ecs',
                    lib_sources,
-                   include_directories: inc,
-                   link_args: link_args,
-                   c_args: args)
+                   include_directories: inc)
 else
-    myst_ecs = both_libaries('myst_ecs',
-                             lib_sources,
-                             include_directories: inc,
-                             link_args: link_args,
-                             c_args: args)
+    myst_ecs = static_library('myst_ecs',
+                              lib_sources,
+                              include_directories: inc)
 
+    shared_library('myst_ecs',
+                   lib_sources,
+                   include_directories: inc)
 endif
 
 if check_location != ''

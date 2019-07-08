@@ -28,7 +28,6 @@ struct EntitySet {
     int mapping_capacity;
     int entity_capacity;
     int last_index;
-    int entity_disposed_subscription;
     int entity_disabled_subscription;
     int entity_enabled_subscription;
     int entity_created_subscription;
@@ -177,10 +176,6 @@ EntitySet* ecs_entity_set_build(EntitySetBuilder* builder, EcsWorld world, bool 
     ecs_component_enum_set_flag(&set->with, ecs_is_alive_flag, true);
     ecs_component_enum_set_flag(&set->with, ecs_is_enabled_flag, true);
 
-    set->entity_disposed_subscription = ecs_event_subscribe(world,
-                                                            ecs_entity_disposed,
-                                                            ecs_closure(set, entity_set_entity_disposed_remove));
-
     set->entity_disabled_subscription = ecs_event_subscribe(world,
                                                             ecs_entity_disabled,
                                                             ecs_closure(set, entity_set_entity_disabled_remove));
@@ -259,7 +254,6 @@ void ecs_entity_set_free(EntitySet* set) {
 
     ecs_event_unsubscribe(set->world, ecs_entity_enabled, set->entity_enabled_subscription);
     ecs_event_unsubscribe(set->world, ecs_entity_disabled, set->entity_disabled_subscription);
-    ecs_event_unsubscribe(set->world, ecs_entity_disposed, set->entity_disposed_subscription);
 
     ecs_free(set->with_components);
     ecs_free(set->without_components);

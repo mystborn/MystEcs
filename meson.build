@@ -19,22 +19,30 @@ subdir('src')
 
 if build_machine.system() == 'windows'
     myst_ecs = static_library('myst_ecs',
-                              lib_sources,
-                              include_directories: inc,
-                              name_suffix: 'lib')
+        lib_sources,
+        include_directories: inc,
+        name_suffix: 'lib'
+    )
 
-    shared_library('myst_ecs',
-                   lib_sources,
-                   include_directories: inc)
+    myst_ecs_shared = shared_library('myst_ecs',
+        lib_sources,
+        include_directories: inc
+    )
 else
     myst_ecs = static_library('myst_ecs',
-                              lib_sources,
-                              include_directories: inc)
+        lib_sources,
+        include_directories: inc
+    )
 
-    shared_library('myst_ecs',
-                   lib_sources,
-                   include_directories: inc)
+    myst_ecs_shared = shared_library('myst_ecs',
+        lib_sources,
+        include_directories: inc
+    )
 endif
+
+myst_ecs_dep = declare_dependency(include_directories: inc,
+    link_with: myst_ecs_shared
+)
 
 if check_location != ''
     subdir('test')

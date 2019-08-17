@@ -21,7 +21,8 @@ if build_machine.system() == 'windows'
     myst_ecs = static_library('myst_ecs',
         lib_sources,
         include_directories: inc,
-        name_suffix: 'lib'
+        name_suffix: 'lib',
+        name_prefix: ''
     )
 
     myst_ecs_shared = shared_library('myst_ecs',

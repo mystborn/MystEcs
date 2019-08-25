@@ -168,12 +168,13 @@ void ecs_system_update(EcsSystem* system, float delta_time) {
             if(component_system->update == NULL)
                 break;
 
-            void* item;
-            ECS_COMPONENT_ITERATE_ENABLED_START(component_system->world, component_system->manager, &item)
+            // The items array has to be of type char* because you can't increment a void ptr.
+            int component_count;
+            char* items = ecs_component_get_all(component_system->world, component_system->manager, &component_count);
 
-                component_system->update(component_system, delta_time, item);
+            for(int i = 0; i < component_count; i++)
+                component_system->update(component_system, delta_time, &items[i * component_system->manager->component_size]);
 
-            ECS_COMPONENT_ITERATE_ENABLED_END()
             break;
         }
         case ECS_SYSTEM_TYPE_ENTITY:

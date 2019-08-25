@@ -133,29 +133,6 @@ START_TEST(set_should_not_include_disabled_entity) {
 }
 END_TEST
 
-START_TEST(set_should_not_include_entity_with_disabled_component) {
-    EntitySetBuilder* builder = ecs_entity_set_builder_init();
-    ecs_entity_set_with(builder, bool_component);
-    EntitySet* set = ecs_entity_set_build(builder, world, true);
-
-    int count = 4;
-    Entity entities[4];
-    for(int i = 0; i < count; i++) {
-        entities[i] = ecs_create_entity(world);
-        ecs_component_set(entities[i], bool_component);
-    }
-
-    ecs_component_disable(entities[0], bool_component);
-
-    int set_count;
-    ecs_entity_set_get_entities(set, &set_count);
-
-    ck_assert_msg(set_count == 3, "Set included entity with disabled component");
-
-    ecs_entity_set_free(set);
-}
-END_TEST
-
 int main(void) {
     int number_failed;
 
@@ -170,7 +147,6 @@ int main(void) {
     tcase_add_test(tc_eb, set_without_component_returns_all_entities_without_component);
     tcase_add_test(tc_eb, set_includes_previously_created_entity);
     tcase_add_test(tc_eb, set_should_not_include_disabled_entity);
-    tcase_add_test(tc_eb, set_should_not_include_entity_with_disabled_component);
 
     suite_add_tcase(s, tc_eb);
 

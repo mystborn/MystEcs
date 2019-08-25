@@ -149,6 +149,14 @@ static ComponentPool* ecs_component_pool_get_or_create(ComponentManager* manager
     }
 }
 
+#define ECS_COMPONENT_ADDED(entity, components, manager, result) \
+    if(manager->added != NULL && ecs_component_enum_get_flag(components, ecs_is_enabled_flag)) { \
+        ecs_event_publish(entity.world,  \
+                          manager->added,  \
+                          void (*)(void*, EcsComponentAddedMessage*), \
+                          &(EcsComponentAddedMessage){ entity, manager, result }); \
+    }
+
 void* ecs_component_set(Entity entity, ComponentManager* manager) {
     ComponentEnum* components;
     void* result;
@@ -162,14 +170,7 @@ void* ecs_component_set(Entity entity, ComponentManager* manager) {
         result = pool->components + (*index * pool->component_size);
 
         components = ecs_entity_get_components(entity);
-        was_set = ecs_component_enum_get_flag(components, manager->flag);
-        if(!was_set) {
-            ecs_component_enum_set_flag(components, manager->flag, true);
-            if(manager->added != NULL && ecs_component_enum_get_flag(components, ecs_is_enabled_flag)) {
-                EcsComponentAddedMessage message = { entity, manager, result };
-                ecs_event_publish(entity.world, manager->added, void (*)(void*, EcsComponentAddedMessage*), &message);
-            }
-        }
+        ECS_COMPONENT_ADDED(entity, components, manager, result);
 
         if(manager->destructor != NULL)
             manager->destructor(result);
@@ -192,14 +193,8 @@ void* ecs_component_set(Entity entity, ComponentManager* manager) {
     result = pool->components + pool->component_size * pool->last_component_index;
 
     components = ecs_entity_get_components(entity);
-    was_set = ecs_component_enum_get_flag(components, manager->flag);
-    if(!was_set) {
-        ecs_component_enum_set_flag(components, manager->flag, true);
-        if(manager->added != NULL && ecs_component_enum_get_flag(components, ecs_is_enabled_flag)) {
-            EcsComponentAddedMessage message = { entity, manager, result };
-            ecs_event_publish(entity.world, manager->added, void (*)(void*, EcsComponentAddedMessage*), &message);
-        }
-    }
+    ecs_component_enum_set_flag(components, manager->flag, true);
+    ECS_COMPONENT_ADDED(entity, components, manager, result);
 
     if(manager->constructor != NULL)
         manager->constructor(result);
@@ -234,11 +229,7 @@ EcsResult ecs_component_set_same_as(Entity entity, Entity reference, ComponentMa
 
     ComponentEnum* components = ecs_entity_get_components(entity);
     ecs_component_enum_set_flag(components, manager->flag, true);
-    if(manager->added != NULL && ecs_component_enum_get_flag(components, ecs_is_enabled_flag)) {
-        void* component = pool->components + pool->component_size * ref_index;
-        EcsComponentAddedMessage message = { entity, manager, component };
-        ecs_event_publish(entity.world, manager->added, void (*)(void*, EcsComponentAddedMessage*), &message);
-    }
+    ECS_COMPONENT_ADDED(entity, components, manager, &pool->components[pool->component_size * ref_index]);
 
     return ECS_RESULT_SUCCESS;
 }
@@ -254,14 +245,11 @@ EcsResult ecs_component_remove(Entity entity, ComponentManager* manager) {
         return ECS_RESULT_INVALID_ENTITY;
 
     ComponentEnum* components = ecs_entity_get_components(entity);
-    bool was_set = ecs_component_enum_get_flag(components, manager->flag);
-    if(was_set) {
-        ecs_component_enum_set_flag(components, manager->flag, false);
-        if(manager->removed != NULL && ecs_component_enum_get_flag(components, ecs_is_enabled_flag)) {
-            void* component = pool->components + pool->component_size * *index;
-            EcsComponentRemovedMessage message = { entity, manager, component };
-            ecs_event_publish(entity.world, manager->removed, void (*)(void*, EcsComponentRemovedMessage*), &message);
-        }
+    ecs_component_enum_set_flag(components, manager->flag, false);
+    if(manager->removed != NULL && ecs_component_enum_get_flag(components, ecs_is_enabled_flag)) {
+        void* component = pool->components + pool->component_size * *index;
+        EcsComponentRemovedMessage message = { entity, manager, component };
+        ecs_event_publish(entity.world, manager->removed, void (*)(void*, EcsComponentRemovedMessage*), &message);
     }
 
     ComponentLink* link = pool->links + *index;
@@ -297,64 +285,6 @@ EcsResult ecs_component_remove(Entity entity, ComponentManager* manager) {
     return ECS_RESULT_SUCCESS;
 }
 
-EcsResult ecs_component_enable(Entity entity, ComponentManager* manager) {
-    ComponentPool* pool = ecs_component_pool_get_or_create(manager, entity.world);
-
-    if(entity.id >= pool->mapping_count)
-        return ECS_RESULT_INVALID_ENTITY;
-
-    int index;
-    if((index = pool->mapping[entity.id]) == -1)
-        return ECS_RESULT_INVALID_ENTITY;
-
-    ComponentEnum* components = ecs_entity_get_components(entity);
-
-    if(!ecs_component_enum_get_flag(components, manager->flag)) {
-        void* component = pool->components + pool->component_size * index;
-        EcsComponentAddedMessage message = { entity, manager, component };
-        ecs_component_enum_set_flag(components, manager->flag, true);
-        if(manager->added != NULL)
-            ecs_event_publish(entity.world, manager->added, void (*)(void*, EcsComponentAddedMessage*), &message);
-
-        return ECS_RESULT_SUCCESS;
-    }
-
-    return ECS_RESULT_INVALID_STATE;
-}
-
-EcsResult ecs_component_disable(Entity entity, ComponentManager* manager) {
-    ComponentPool* pool = ecs_component_pool_get_or_create(manager, entity.world);
-
-    if(entity.id >= pool->mapping_count)
-        return ECS_RESULT_INVALID_ENTITY;
-
-    int index;
-    if((index = pool->mapping[entity.id]) == -1)
-        return ECS_RESULT_INVALID_ENTITY;
-
-    ComponentEnum* components = ecs_entity_get_components(entity);
-
-    if(ecs_component_enum_get_flag(components, manager->flag)) {
-        void* component = pool->components + pool->component_size * index;
-        EcsComponentRemovedMessage message = { entity, manager, component };
-        ecs_component_enum_set_flag(components, manager->flag, false);
-        if(manager->removed != NULL)
-            ecs_event_publish(entity.world, manager->removed, void (*)(void*, EcsComponentRemovedMessage*), &message);
-
-        return ECS_RESULT_SUCCESS;
-    }
-
-    return ECS_RESULT_INVALID_STATE;
-}
-
-bool ecs_component_is_enabled(Entity entity, ComponentManager* manager) {
-    if(!ecs_component_exists(entity, manager))
-        return ECS_RESULT_INVALID_ENTITY;
-
-    ComponentEnum* components = ecs_entity_get_components(entity);
-    return ecs_component_enum_get_flag(components, ecs_is_enabled_flag) && ecs_component_enum_get_flag(components, manager->flag);
-}
-
 EcsResult ecs_component_get(Entity entity, ComponentManager* manager, void** data) {
     ComponentPool* pool = ecs_component_pool_get_or_create(manager, entity.world);
 
@@ -382,30 +312,4 @@ void* ecs_component_get_all(EcsWorld world, ComponentManager* manager, int* coun
     ComponentPool* pool = ecs_component_pool_get_or_create(manager, world);
     *count = pool->last_component_index + 1;
     return pool->components;
-}
-
-void ecs_component_iter_enabled_start(EcsWorld world, ComponentManager* manager, ComponentIterator* iterator) {
-    int count;
-    iterator->pool = ecs_component_pool_get_or_create(manager, world);
-    iterator->components = ecs_world_get_components(world, &count);
-    iterator->index = -1;
-    iterator->flag = COMPONENT_ENUM_DEFAULT;
-    ecs_component_enum_set_flag(&iterator->flag, ecs_is_enabled_flag, true);
-    ecs_component_enum_set_flag(&iterator->flag, manager->flag, true);
-}
-
-bool ecs_component_iter_enabled_next(ComponentIterator* iterator, void** result) {
-    while(++iterator->index <= iterator->pool->last_component_index) {
-        if(!ecs_component_enum_contains_enum(iterator->components + iterator->index, &iterator->flag))
-            continue;
-
-        *result = iterator->pool->components + (iterator->index * iterator->pool->component_size);
-        return true;
-    }
-
-    return false;
-}
-
-void ecs_component_iter_enabled_end(ComponentIterator* iterator) {
-    ecs_component_enum_free_resources(&iterator->flag);
 }

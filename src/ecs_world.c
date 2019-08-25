@@ -22,13 +22,6 @@ static struct EcsWorldManager world_manager;
 ComponentFlag ecs_is_alive_flag;
 ComponentFlag ecs_is_enabled_flag;
 
-static void world_on_entity_disposed(void* data, EcsEntityDisposedMessage* message) {
-    struct EcsWorldImpl* impl = data;
-    
-    ecs_component_enum_clear(impl->entity_components + message->entity.id);
-    ecs_dispenser_release(&impl->dispenser, message->entity.id);
-}
-
 void ecs_world_system_init(void) {
     ecs_is_alive_flag = ecs_component_flag_get();
     ecs_is_enabled_flag = ecs_component_flag_get();
@@ -48,8 +41,6 @@ EcsWorld ecs_world_init(void) {
     ecs_dispenser_init(&world->dispenser);
     world->entity_components = NULL;
     world->capacity = 0;
-
-    ecs_event_subscribe(id, ecs_entity_disposed, ecs_closure(world, world_on_entity_disposed));
     
     return id;
 }
@@ -105,6 +96,9 @@ EcsResult ecs_entity_free(Entity entity) {
 
     EcsEntityDisposedMessage message = { entity };
     ecs_event_publish(entity.world, ecs_entity_disposed, void (*)(void*, EcsEntityDisposedMessage*), &message);
+    
+    ecs_component_enum_clear(impl->entity_components + entity.id);
+    ecs_dispenser_release(&impl->dispenser, entity.id);
 
     return ECS_RESULT_SUCCESS;
 }

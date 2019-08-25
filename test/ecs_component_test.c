@@ -139,18 +139,7 @@ START_TEST(component_free_destroys_all_components) {
 }
 END_TEST
 
-START_TEST(component_enable_and_disable) {
-    Entity entity1 = ecs_create_entity(world);
-    ecs_component_set(entity1, number_component);
-    ck_assert_msg(ecs_component_is_enabled(entity1, number_component), "Valid component not enabled");
-    ck_assert_msg(ecs_component_enable(entity1, number_component) == ECS_RESULT_INVALID_STATE, "Able to enable enabled component");
-    ck_assert_msg(ecs_component_disable(entity1, number_component) == ECS_RESULT_SUCCESS, "Not able to disabled enabled component");
-    ck_assert_msg(!ecs_component_is_enabled(entity1, number_component), "Invalid component enabled");
-    ecs_entity_free(entity1);
-}
-END_TEST
-
-START_TEST(component_get_all_enabled) {
+START_TEST(component_get_all) {
     Entity entity1 = ecs_create_entity(world);
     Entity entity2 = ecs_create_entity(world);
     Entity entity3 = ecs_create_entity(world);
@@ -162,68 +151,6 @@ START_TEST(component_get_all_enabled) {
     ck_assert(count == 3);
     for(int i = 0; i < count; ++i)
         ck_assert(ints[i] == i);
-    ecs_entity_free(entity1);
-    ecs_entity_free(entity2);
-    ecs_entity_free(entity3);
-}
-END_TEST
-
-START_TEST(component_get_all_disabled) {
-    Entity entity1 = ecs_create_entity(world);
-    Entity entity2 = ecs_create_entity(world);
-    Entity entity3 = ecs_create_entity(world);
-    *(int*)ecs_component_set(entity1, number_component) = 0;
-    *(int*)ecs_component_set(entity2, number_component) = 1;
-    *(int*)ecs_component_set(entity3, number_component) = 2;
-    ecs_component_disable(entity2, number_component);
-    int count;
-    int* ints = ecs_component_get_all(world, number_component, &count);
-    ck_assert(count == 3);
-    for(int i = 0; i < count; ++i)
-        ck_assert(ints[i] == i);
-    ecs_entity_free(entity1);
-    ecs_entity_free(entity2);
-    ecs_entity_free(entity3);
-}
-END_TEST
-
-START_TEST(component_iterate_enabled) {
-    Entity entity1 = ecs_create_entity(world);
-    Entity entity2 = ecs_create_entity(world);
-    Entity entity3 = ecs_create_entity(world);
-    *(int*)ecs_component_set(entity1, number_component) = 1;
-    *(int*)ecs_component_set(entity2, number_component) = 1;
-    *(int*)ecs_component_set(entity3, number_component) = 1;
-    int* value;
-    int count = 0;
-
-    ECS_COMPONENT_ITERATE_ENABLED_START(world, number_component, &value)
-        count += *value;
-    ECS_COMPONENT_ITERATE_ENABLED_END()
-
-    ck_assert(count == 3);
-    ecs_entity_free(entity1);
-    ecs_entity_free(entity2);
-    ecs_entity_free(entity3);
-}
-END_TEST
-
-START_TEST(component_iterate_disabled) {
-    Entity entity1 = ecs_create_entity(world);
-    Entity entity2 = ecs_create_entity(world);
-    Entity entity3 = ecs_create_entity(world);
-    *(int*)ecs_component_set(entity1, number_component) = 1;
-    *(int*)ecs_component_set(entity2, number_component) = 1;
-    *(int*)ecs_component_set(entity3, number_component) = 1;
-    ecs_component_disable(entity2, number_component);
-    int* value;
-    int count = 0;
-
-    ECS_COMPONENT_ITERATE_ENABLED_START(world, number_component, &value)
-        count += *value;
-    ECS_COMPONENT_ITERATE_ENABLED_END()
-    
-    ck_assert(count == 2);
     ecs_entity_free(entity1);
     ecs_entity_free(entity2);
     ecs_entity_free(entity3);
@@ -248,11 +175,7 @@ int main(void) {
     tcase_add_test(tc_component, component_get_invalid_component);
     tcase_add_test(tc_component, entity_free_removes_components);
     tcase_add_test(tc_component, component_free_destroys_all_components);
-    tcase_add_test(tc_component, component_enable_and_disable);
-    tcase_add_test(tc_component, component_get_all_enabled);
-    tcase_add_test(tc_component, component_get_all_disabled);
-    tcase_add_test(tc_component, component_iterate_enabled);
-    tcase_add_test(tc_component, component_iterate_disabled);
+    tcase_add_test(tc_component, component_get_all);
 
     suite_add_tcase(s, tc_component);
 

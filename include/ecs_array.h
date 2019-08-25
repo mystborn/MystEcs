@@ -10,8 +10,6 @@
 #ifndef ECS_ECS_ARRAY_H
 #define ECS_ECS_ARRAY_H
 
-#include <stdio.h>
-
 /*!
   \brief Ensures that the an array is large enough to have a specified index.
 

@@ -1,9 +1,9 @@
-lib_sources = files([ 'component.c', 
-                      'component_flag.c',
+lib_sources = files([ 'ecs_component.c', 
+                      'ecs_component_flag.c',
                       'ecs.c',
                       'ecs_event.c', 
                       'ecs_messages.c', 
                       'ecs_system.c', 
                       'ecs_world.c',
-                      'entity_set.c'
+                      'ecs_entity_set.c'
                     ])

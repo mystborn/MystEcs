@@ -11,15 +11,15 @@
 #define ECS_ECS_H
 
 #include "ecs_common.h"
-#include "entity.h"
-#include "int_dispenser.h"
-#include "component_flag.h"
-#include "component.h"
+#include "ecs_entity.h"
+#include "ecs_int_dispenser.h"
+#include "ecs_component_flag.h"
+#include "ecs_component.h"
 #include "ecs_messages.h"
 #include "ecs_system.h"
 #include "ecs_event.h"
 #include "ecs_world.h"
-#include "entity_set.h"
+#include "ecs_entity_set.h"
 
 /// Initializes the various systems needed to use ecs.
 void ecs_init(void);

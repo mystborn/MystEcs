@@ -3,9 +3,9 @@
 
 // This file defines various messages used by events.
 
-#include "component.h"
+#include "ecs_component.h"
 #include "ecs_common.h"
-#include "entity.h"
+#include "ecs_entity.h"
 #include "ecs_event.h"
 
 /// Message sent when an EcsEntity is created.

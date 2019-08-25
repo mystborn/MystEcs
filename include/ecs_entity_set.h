@@ -12,7 +12,7 @@
 
 #include "ecs_common.h"
 #include "ecs_world.h"
-#include "component.h"
+#include "ecs_component.h"
 
 /// Sets up an EcsEntitySet for creation.
 typedef struct EcsEntitySetBuilder EcsEntitySetBuilder;

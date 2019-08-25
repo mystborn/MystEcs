@@ -4,9 +4,9 @@
 #include <stdarg.h>
 
 #include "ecs_common.h"
-#include "component.h"
-#include "entity.h"
-#include "entity_set.h"
+#include "ecs_component.h"
+#include "ecs_entity.h"
+#include "ecs_entity_set.h"
 
 /// The base type of an Ecs System.
 typedef struct EcsSystem EcsSystem;

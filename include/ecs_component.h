@@ -3,8 +3,8 @@
 
 #include "ecs_common.h"
 #include "ecs_event.h"
-#include "entity.h"
-#include "component_flag.h"
+#include "ecs_entity.h"
+#include "ecs_component_flag.h"
 
 /// Function definition used when a new component is created.
 typedef void (*EcsComponentConstructor)(void*);

@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 #include "ecs_messages.h"
-#include "int_dispenser.h"
+#include "ecs_int_dispenser.h"
 
 struct EcsWorldImpl {
     EcsIntDispenser dispenser;

@@ -1,8 +1,8 @@
-#include "component.h"
+#include "ecs_component.h"
 
 #include <stdio.h>
 
-#include "int_dispenser.h"
+#include "ecs_int_dispenser.h"
 #include "ecs_event.h"
 #include "ecs_messages.h"
 #include "ecs_world.h"

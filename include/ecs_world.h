@@ -1,10 +1,10 @@
 #ifndef ECS_ECS_WORLD_H
 #define ECS_ECS_WORLD_H
 
-// EcsWorld is defined in entity.h
+// EcsWorld is defined in ecs_entity.h
 
 #include "ecs_common.h"
-#include "component_flag.h"
+#include "ecs_component_flag.h"
 #include "ecs_event.h"
 
 /// Initializes the world subsystem. Should not be called directly.

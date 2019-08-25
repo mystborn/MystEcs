@@ -2,8 +2,8 @@
 #define ECS_ECS_EVENT_H
 
 #include "ecs_common.h"
-#include "entity.h"
-#include "int_dispenser.h"
+#include "ecs_entity.h"
+#include "ecs_int_dispenser.h"
 
 /// A very simple closure implementation that has an environment and a function.
 typedef struct EcsClosure {

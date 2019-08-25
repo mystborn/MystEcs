@@ -8,29 +8,29 @@
 #include "entity.h"
 #include "ecs_event.h"
 
-/// Message sent when an Entity is created.
-typedef struct EcsEntityCreatedMessage {
+/// Message sent when an EcsEntity is created.
+typedef struct EcsEcsEntityCreatedMessage {
     /// The entity that was created.
-    Entity entity;
-} EcsEntityCreatedMessage;
+    EcsEntity entity;
+} EcsEcsEntityCreatedMessage;
 
-/// Message sent when an Entity is freed.
-typedef struct EcsEntityDisposedMessage {
+/// Message sent when an EcsEntity is freed.
+typedef struct EcsEcsEntityDisposedMessage {
     /// The entity that was freed.
-    Entity entity;
-} EcsEntityDisposedMessage;
+    EcsEntity entity;
+} EcsEcsEntityDisposedMessage;
 
-/// Message sent when an Entity is enabled.
-typedef struct EcsEntityEnabledMessage {
+/// Message sent when an EcsEntity is enabled.
+typedef struct EcsEcsEntityEnabledMessage {
     /// The entity that was enabled.
-    Entity entity;
-} EcsEntityEnabledMessage;
+    EcsEntity entity;
+} EcsEcsEntityEnabledMessage;
 
-/// Message sent when an Entity is disabled.
-typedef struct EcsEntityDisabledMessage {
+/// Message sent when an EcsEntity is disabled.
+typedef struct EcsEcsEntityDisabledMessage {
     /// The entity that was disabled.
-    Entity entity;
-} EcsEntityDisabledMessage;
+    EcsEntity entity;
+} EcsEcsEntityDisabledMessage;
 
 // Todo: Remove the component field from 
 //       EcsComponentAddedMessage and EcsComponentRemovedMessage.
@@ -39,10 +39,10 @@ typedef struct EcsEntityDisabledMessage {
 /// Will be reworked in the near future, so use with caution.
 typedef struct EcsComponentAddedMessage {
     /// The entity that had a component added to.
-    Entity entity;
+    EcsEntity entity;
 
     /// The type of the component added to the entity.
-    ComponentManager* component_type;
+    EcsComponentManager* component_type;
 
     /// The actual component added to the entity.
     void* component;
@@ -52,10 +52,10 @@ typedef struct EcsComponentAddedMessage {
 /// Will be reworked in the near future, so use with caution.
 typedef struct EcsComponentRemovedMessage {
     /// The entity that the component was removed from.
-    Entity entity;
+    EcsEntity entity;
 
     /// The type of the component that was removed.
-    ComponentManager* component_type;
+    EcsComponentManager* component_type;
 
     /// The actual value of the component that was removed.
     void* component;

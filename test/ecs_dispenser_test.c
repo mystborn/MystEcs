@@ -4,7 +4,7 @@
 #include "ecs.h"
 
 START_TEST(ecs_dispenser_initial_value_default) {
-    IntDispenser dispenser;
+    EcsIntDispenser dispenser;
     ecs_dispenser_init(&dispenser);
     int value = ecs_dispenser_get(&dispenser);
     ck_assert_msg(value == 0, "Int Dispenser starts with an invalid value");
@@ -13,7 +13,7 @@ START_TEST(ecs_dispenser_initial_value_default) {
 END_TEST
 
 START_TEST(ecs_dispenser_initial_value_custom) {
-    IntDispenser dispenser;
+    EcsIntDispenser dispenser;
     int start = 5;
     ecs_dispenser_init_start(&dispenser, start);
     int value = ecs_dispenser_get(&dispenser);
@@ -23,7 +23,7 @@ START_TEST(ecs_dispenser_initial_value_custom) {
 END_TEST
 
 START_TEST(ecs_dispenser_get_valid) {
-    IntDispenser dispenser;
+    EcsIntDispenser dispenser;
     ecs_dispenser_init(&dispenser);
     int first = ecs_dispenser_get(&dispenser);
     int second = ecs_dispenser_get(&dispenser);

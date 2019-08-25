@@ -17,25 +17,25 @@ EcsWorld ecs_world_init(void);
 EcsResult ecs_world_free(EcsWorld world);
 
 /// Creates an entity in the given world.
-Entity ecs_create_entity(EcsWorld world);
+EcsEntity ecs_create_entity(EcsWorld world);
 
 /// Frees all components owned by an entity, then frees the entity.
-EcsResult ecs_entity_free(Entity entity);
+EcsResult ecs_entity_free(EcsEntity entity);
 
 /// Enables a previously disabled entity.
-EcsResult ecs_entity_enable(Entity entity);
+EcsResult ecs_entity_enable(EcsEntity entity);
 
 /// Disables an enabled entity.
-EcsResult ecs_entity_disable(Entity entity);
+EcsResult ecs_entity_disable(EcsEntity entity);
 
 /// Determines if an entity is alive, but not necessarily enabled.
-bool ecs_entity_is_alive(Entity entity);
+bool ecs_entity_is_alive(EcsEntity entity);
 
 /// Determines if an entity is alive and enabled.
-bool ecs_entity_is_enabled(Entity entity);
+bool ecs_entity_is_enabled(EcsEntity entity);
 
 /// Gets all component types associated with an entity.
-ComponentEnum* ecs_entity_get_components(Entity entity);
+ComponentEnum* ecs_entity_get_components(EcsEntity entity);
 
 /*!
     \brief Gets all component types owned by all entities on the specified world.

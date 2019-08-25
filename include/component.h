@@ -7,27 +7,27 @@
 #include "component_flag.h"
 
 /// Function definition used when a new component is created.
-typedef void (*ComponentConstructor)(void*);
+typedef void (*EcsComponentConstructor)(void*);
 
 /// Function definition used when a component is destroyed.
-typedef void (*ComponentDestructor)(void*);
+typedef void (*EcsComponentDestructor)(void*);
 
-struct ComponentPool;
+struct EcsComponentPool;
 
 /// Defines and handles the memory management of a component type.
-typedef struct ComponentManager {
+typedef struct EcsComponentManager {
     /// The unique identifer of this component type.
     ComponentFlag flag;
 
 /// \privatesection
 
-    ComponentConstructor constructor;
-    ComponentDestructor destructor;
+    EcsComponentConstructor constructor;
+    EcsComponentDestructor destructor;
 
     EcsEventManager* added;
     EcsEventManager* removed;
 
-    struct ComponentPool** pools;
+    struct EcsComponentPool** pools;
 
     int pool_count;
 
@@ -35,7 +35,7 @@ typedef struct ComponentManager {
     int component_size;
 
     int world_disposed_id;
-} ComponentManager;
+} EcsComponentManager;
 
 /*!
   \brief Creates a new component type.
@@ -43,19 +43,19 @@ typedef struct ComponentManager {
   \param component_size The size of the component type. Used to allocate new components.
   \param constructor A function that is called when a new component is created. Can be NULL.
   \param destructor A function that is called when a component is removed. Can be NULL.
-  \return A new ComponentManager
+  \return A new EcsComponentManager
  */
-ComponentManager* ecs_component_define(int component_size, ComponentConstructor constructor, ComponentDestructor destructor);
+EcsComponentManager* ecs_component_define(int component_size, EcsComponentConstructor constructor, EcsComponentDestructor destructor);
 
-/// Frees all components owned by a ComponentManager, then frees the manager.
-void ecs_component_free(ComponentManager* manager);
+/// Frees all components owned by a EcsComponentManager, then frees the manager.
+void ecs_component_free(EcsComponentManager* manager);
 
 /*!
   \brief Creates and associates a component with an entity.
 
   \return A pointer to the new component. This will be one level of indirection higher than the component type.
  */
-void* ecs_component_set(Entity entity, ComponentManager* manager);
+void* ecs_component_set(EcsEntity entity, EcsComponentManager* manager);
 
 /*!
   \brief Associates a component owned by a reference entity with another entity.
@@ -64,10 +64,10 @@ void* ecs_component_set(Entity entity, ComponentManager* manager);
   \param reference The entity that already owns the component.
   \param manager The component type.
  */
-EcsResult ecs_component_set_same_as(Entity entity, Entity reference, ComponentManager* manager);
+EcsResult ecs_component_set_same_as(EcsEntity entity, EcsEntity reference, EcsComponentManager* manager);
 
 /// Removes a component from an entity.
-EcsResult ecs_component_remove(Entity entity, ComponentManager* manager);
+EcsResult ecs_component_remove(EcsEntity entity, EcsComponentManager* manager);
 
 /*!
   \brief Get a component associated with an entity.
@@ -77,10 +77,10 @@ EcsResult ecs_component_remove(Entity entity, ComponentManager* manager);
   \param component A pointer that is filled with the component value. Should be two levels of indirection higher than the actual component type.
                    (i.e. if the component type is int, the value passed to the function should be int**)
  */
-EcsResult ecs_component_get(Entity entity, ComponentManager* manager, void** component);
+EcsResult ecs_component_get(EcsEntity entity, EcsComponentManager* manager, void** component);
 
 /// Determines if a component is associated with an entity.
-bool ecs_component_exists(Entity entity, ComponentManager*);
+bool ecs_component_exists(EcsEntity entity, EcsComponentManager*);
 
 /*!
   \brief Gets all created components, regardless if they're enabled or not.
@@ -90,10 +90,10 @@ bool ecs_component_exists(Entity entity, ComponentManager*);
   \param count An int pointer that is filled with the number of components.
   \return An array that holds the components. Do not free this array.
  */
-void* ecs_component_get_all(EcsWorld world, ComponentManager* manager, int* count);
+void* ecs_component_get_all(EcsWorld world, EcsComponentManager* manager, int* count);
 
 /// Gets an EcsEventManager that is triggered when the specified component type is added to an entity.
-static inline EcsEventManager* ecs_component_get_added_event(ComponentManager* manager) {
+static inline EcsEventManager* ecs_component_get_added_event(EcsComponentManager* manager) {
     if(manager->added == NULL)
         manager->added = ecs_event_define();
 
@@ -101,7 +101,7 @@ static inline EcsEventManager* ecs_component_get_added_event(ComponentManager* m
 }
 
 /// Gets an EcsEventManager that is triggered when the specified component type is removed from an entity.
-static inline EcsEventManager* ecs_component_get_removed_event(ComponentManager* manager) {
+static inline EcsEventManager* ecs_component_get_removed_event(EcsComponentManager* manager) {
     if(manager->removed == NULL)
         manager->removed = ecs_event_define();
 

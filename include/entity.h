@@ -5,12 +5,12 @@
 typedef int EcsWorld;
 
 /// The entity part of entity-component-system.
-typedef struct Entity {
+typedef struct EcsEntity {
     /// The world that the entity belongs to.
     int world;
 
     /// The id of the entity inside of the world.
     int id;
-} Entity;
+} EcsEntity;
 
 #endif

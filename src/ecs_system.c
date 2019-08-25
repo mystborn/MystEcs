@@ -23,7 +23,7 @@ static void ecs_sequential_system_free(void* data, EcsSystem* system) {
 }
 
 static void ecs_entity_system_free(void* data, EcsSystem* system) {
-    EcsEntitySystem* entity_system = (EcsEntitySystem*)system;
+    EcsEcsEntitySystem* entity_system = (EcsEcsEntitySystem*)system;
     ecs_entity_set_free(entity_system->entities);
 }
 
@@ -49,7 +49,7 @@ bool ecs_system_disable(EcsSystem* system) {
 
 void ecs_component_system_init(EcsComponentSystem* system, 
                                EcsWorld world, 
-                               ComponentManager* component_type, 
+                               EcsComponentManager* component_type, 
                                EcsSystemUpdateComponent update, 
                                EcsSystemPreupdate preupdate, 
                                EcsSystemPostupdate postupdate)
@@ -60,11 +60,11 @@ void ecs_component_system_init(EcsComponentSystem* system,
     system->update = update;
 }
 
-void ecs_entity_system_init(EcsEntitySystem* system, 
+void ecs_entity_system_init(EcsEcsEntitySystem* system, 
                             EcsWorld world,
-                            EntitySetBuilder* builder,
+                            EcsEntitySetBuilder* builder,
                             bool free_builder,
-                            EcsSystemUpdateEntity update, 
+                            EcsSystemUpdateEcsEntity update, 
                             EcsSystemPreupdate preupdate, 
                             EcsSystemPostupdate postupdate)
 {
@@ -183,16 +183,16 @@ void ecs_system_update(EcsSystem* system, float delta_time) {
             // using ecs_world_get_components. The system had a with and without
             // ComponentEnum field and for each entity it would compare against the fields.
             // That version is actually FASTER if the components are being changed frequently
-            // (i.e. like every frame). Using an EntitySet is faster when the components aren't changing,
+            // (i.e. like every frame). Using an EcsEntitySet is faster when the components aren't changing,
             // which is the more general case, so it's used instead. If this is too large of a bottleneck,
             // a hybrid solution may be applicable.
 
-            EcsEntitySystem* entity_system = (EcsEntitySystem*)system;
+            EcsEcsEntitySystem* entity_system = (EcsEcsEntitySystem*)system;
             if(entity_system->update == NULL)
                 break;
 
             int entity_count;
-            Entity* entities = ecs_entity_set_get_entities(entity_system->entities, &entity_count);
+            EcsEntity* entities = ecs_entity_set_get_entities(entity_system->entities, &entity_count);
 
             for(int i = 0; i < entity_count; i++)
                 entity_system->update(entity_system, delta_time, entities[i]);

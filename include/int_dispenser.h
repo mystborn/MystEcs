@@ -13,16 +13,16 @@
 #include "ecs_common.h"
 
 /// A helper struct that efficiently handles open array indexes.
-typedef struct IntDispenser {
+typedef struct EcsIntDispenser {
 /// \privatesection
     int* free_ints;
     int free_count;
     int free_capacity;
     int total;
-} IntDispenser;
+} EcsIntDispenser;
 
 /// Initializes an int dispenser.
-static inline void ecs_dispenser_init(IntDispenser* id) {
+static inline void ecs_dispenser_init(EcsIntDispenser* id) {
     id->free_ints = NULL;
     id->free_count = 0;
     id->free_capacity = 0;
@@ -30,7 +30,7 @@ static inline void ecs_dispenser_init(IntDispenser* id) {
 }
 
 /// Initializes an int dispenser with a given starting point.
-static inline void ecs_dispenser_init_start(IntDispenser* id, int start) {
+static inline void ecs_dispenser_init_start(EcsIntDispenser* id, int start) {
     id->free_ints = NULL;
     id->free_count = 0;
     id->free_capacity = 0;
@@ -38,20 +38,20 @@ static inline void ecs_dispenser_init_start(IntDispenser* id, int start) {
 }
 
 /// Frees all resources owned by an int dispenser. Does not free the dispenser.
-static inline void ecs_dispenser_free_resources(IntDispenser* id) {
+static inline void ecs_dispenser_free_resources(EcsIntDispenser* id) {
     if(id->free_ints != NULL)
         ecs_free(id->free_ints);
 }
 
 /// Frees all resources owned by an int dispenser and frees the dispenser.
-static inline void ecs_dispenser_free(IntDispenser* id) {
+static inline void ecs_dispenser_free(EcsIntDispenser* id) {
     if(id->free_ints != NULL)
         ecs_free(id->free_ints);
     ecs_free(id);
 }
 
 /// Gets an open index.
-static inline int ecs_dispenser_get(IntDispenser* id) {
+static inline int ecs_dispenser_get(EcsIntDispenser* id) {
     if(id->free_count == 0)
         return id->total++;
     else
@@ -59,7 +59,7 @@ static inline int ecs_dispenser_get(IntDispenser* id) {
 }
 
 /// Releases an index to be used later.
-static inline void ecs_dispenser_release(IntDispenser* id, int value) {
+static inline void ecs_dispenser_release(EcsIntDispenser* id, int value) {
     ECS_ARRAY_RESIZE(id->free_ints, id->free_capacity, id->free_count + 1, sizeof(*id->free_ints));
     id->free_ints[id->free_count++] = value;
 }

@@ -1,8 +1,8 @@
 #include "check.h"
 #include "ecs.h"
 
-ComponentManager* bool_component;
-ComponentManager* int_component;
+EcsComponentManager* bool_component;
+EcsComponentManager* int_component;
 
 int action_count;
 
@@ -14,7 +14,7 @@ void component_update(EcsComponentSystem* system, float state, void* item) {
     *(bool*)item = true;
 }
 
-void entity_update(EcsEntitySystem* system, float state, Entity entity) {
+void entity_update(EcsEcsEntitySystem* system, float state, EcsEntity entity) {
     bool* item;
     ecs_component_get(entity, bool_component, &item);
     *item = true;
@@ -114,9 +114,9 @@ END_TEST
 
 START_TEST(component_enabled_update_calls) {
     EcsWorld world = ecs_world_init();
-    Entity entity1 = ecs_create_entity(world);
-    Entity entity2 = ecs_create_entity(world);
-    Entity entity3 = ecs_create_entity(world);
+    EcsEntity entity1 = ecs_create_entity(world);
+    EcsEntity entity2 = ecs_create_entity(world);
+    EcsEntity entity3 = ecs_create_entity(world);
     bool* c1 = ecs_component_set(entity1, bool_component);
     bool* c2 = ecs_component_set(entity2, bool_component);
     bool* c3 = ecs_component_set(entity3, bool_component);
@@ -131,9 +131,9 @@ END_TEST
 
 START_TEST(component_disabled_update_not_calls) {
     EcsWorld world = ecs_world_init();
-    Entity entity1 = ecs_create_entity(world);
-    Entity entity2 = ecs_create_entity(world);
-    Entity entity3 = ecs_create_entity(world);
+    EcsEntity entity1 = ecs_create_entity(world);
+    EcsEntity entity2 = ecs_create_entity(world);
+    EcsEntity entity3 = ecs_create_entity(world);
     bool* c1 = ecs_component_set(entity1, bool_component);
     bool* c2 = ecs_component_set(entity2, bool_component);
     bool* c3 = ecs_component_set(entity3, bool_component);
@@ -148,72 +148,72 @@ START_TEST(component_disabled_update_not_calls) {
 END_TEST
 
 START_TEST(entity_enabled_update_all) {
-    EntitySetBuilder* builder = ecs_entity_set_builder_init();
+    EcsEntitySetBuilder* builder = ecs_entity_set_builder_init();
     ecs_entity_set_with(builder, bool_component);
     ecs_entity_set_without(builder, int_component);
 
     EcsWorld world = ecs_world_init();
-    Entity entity1 = ecs_create_entity(world);
-    Entity entity2 = ecs_create_entity(world);
-    Entity entity3 = ecs_create_entity(world);
+    EcsEntity entity1 = ecs_create_entity(world);
+    EcsEntity entity2 = ecs_create_entity(world);
+    EcsEntity entity3 = ecs_create_entity(world);
     bool* c1 = ecs_component_set(entity1, bool_component);
     bool* c2 = ecs_component_set(entity2, bool_component);
     bool* c3 = ecs_component_set(entity3, bool_component);
 
-    EcsEntitySystem system;
+    EcsEcsEntitySystem system;
     ecs_entity_system_init(&system, world, builder, true, entity_update, NULL, NULL);
 
     ecs_system_update(&system, 0);
-    ck_assert_msg(*c1 && *c2 && *c3, "Entity system failed to update for all entities");
+    ck_assert_msg(*c1 && *c2 && *c3, "EcsEntity system failed to update for all entities");
     ecs_system_free_resources(&system);
     ecs_world_free(world);
 }
 END_TEST
 
 START_TEST(entity_enabled_update_some) {
-    EntitySetBuilder* builder = ecs_entity_set_builder_init();
+    EcsEntitySetBuilder* builder = ecs_entity_set_builder_init();
     ecs_entity_set_with(builder, bool_component);
     ecs_entity_set_without(builder, int_component);
 
     EcsWorld world = ecs_world_init();
-    Entity entity1 = ecs_create_entity(world);
-    Entity entity2 = ecs_create_entity(world);
-    Entity entity3 = ecs_create_entity(world);
+    EcsEntity entity1 = ecs_create_entity(world);
+    EcsEntity entity2 = ecs_create_entity(world);
+    EcsEntity entity3 = ecs_create_entity(world);
     bool* c1 = ecs_component_set(entity1, bool_component);
     bool* c2 = ecs_component_set(entity2, bool_component);
     bool* c3 = ecs_component_set(entity3, bool_component);
     ecs_component_set(entity2, int_component);
 
-    EcsEntitySystem system;
+    EcsEcsEntitySystem system;
     ecs_entity_system_init(&system, world, builder, true, entity_update, NULL, NULL);
 
     ecs_system_update(&system, 0);
-    ck_assert_msg(*c1 && *c3 && !*c2, "Entity system failed to update for valid entities");
+    ck_assert_msg(*c1 && *c3 && !*c2, "EcsEntity system failed to update for valid entities");
     ecs_system_free_resources(&system);
     ecs_world_free(world);
 }
 END_TEST
 
 START_TEST(entity_disabled_update_none) {
-    EntitySetBuilder* builder = ecs_entity_set_builder_init();
+    EcsEntitySetBuilder* builder = ecs_entity_set_builder_init();
     ecs_entity_set_with(builder, bool_component);
     ecs_entity_set_without(builder, int_component);
 
     EcsWorld world = ecs_world_init();
-    Entity entity1 = ecs_create_entity(world);
-    Entity entity2 = ecs_create_entity(world);
-    Entity entity3 = ecs_create_entity(world);
+    EcsEntity entity1 = ecs_create_entity(world);
+    EcsEntity entity2 = ecs_create_entity(world);
+    EcsEntity entity3 = ecs_create_entity(world);
     bool* c1 = ecs_component_set(entity1, bool_component);
     bool* c2 = ecs_component_set(entity2, bool_component);
     bool* c3 = ecs_component_set(entity3, bool_component);
 
-    EcsEntitySystem system;
+    EcsEcsEntitySystem system;
     ecs_entity_system_init(&system, world, builder, true, entity_update, NULL, NULL);
 
     ecs_system_disable(&system);
 
     ecs_system_update(&system, 0);
-    ck_assert_msg(!(*c1 || *c2 || *c3), "Entity system updated invalid entities");
+    ck_assert_msg(!(*c1 || *c2 || *c3), "EcsEntity system updated invalid entities");
     ecs_system_free_resources(&system);
     ecs_world_free(world);
 }

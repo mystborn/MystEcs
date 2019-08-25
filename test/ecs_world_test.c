@@ -75,8 +75,8 @@ END_TEST
 START_TEST(create_entity_returns_an_entity) {
     EcsWorld world = ecs_world_init();
 
-    Entity entity = ecs_create_entity(world);
-    ck_assert_msg(entity.world == world, "Entity created on the wrong world");
+    EcsEntity entity = ecs_create_entity(world);
+    ck_assert_msg(entity.world == world, "EcsEntity created on the wrong world");
     ck_assert_msg(ecs_entity_is_alive(entity), "New entity not alive");
     ck_assert_msg(ecs_entity_is_enabled(entity), "New entity not enabled");
     ck_assert_msg(ecs_entity_free(entity) == ECS_RESULT_SUCCESS, "New entity not freed");
@@ -85,8 +85,8 @@ START_TEST(create_entity_returns_an_entity) {
 END_TEST
 
 START_TEST(free_invalid_entity_should_fail) {
-    Entity entity = { -2, 0 };
-    ck_assert_msg(ecs_entity_free(entity) == ECS_RESULT_INVALID_WORLD, "Entity on invalid world freed");
+    EcsEntity entity = { -2, 0 };
+    ck_assert_msg(ecs_entity_free(entity) == ECS_RESULT_INVALID_WORLD, "EcsEntity on invalid world freed");
 
     EcsWorld world = ecs_world_init();
 
@@ -100,7 +100,7 @@ END_TEST
 
 START_TEST(entity_can_be_disabled) {
     EcsWorld world = ecs_world_init();
-    Entity entity = ecs_create_entity(world);
+    EcsEntity entity = ecs_create_entity(world);
 
     ck_assert_msg(ecs_entity_enable(entity) == ECS_RESULT_INVALID_STATE, "Enabled an enabled entity");
     ck_assert_msg(ecs_entity_disable(entity) == ECS_RESULT_SUCCESS, "Could not disable entity");

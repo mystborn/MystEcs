@@ -6,13 +6,13 @@
 #include "int_dispenser.h"
 
 struct EcsWorldImpl {
-    IntDispenser dispenser;
+    EcsIntDispenser dispenser;
     ComponentEnum* entity_components;
     int capacity;
 };
 
 struct EcsWorldManager {
-    IntDispenser dispenser;
+    EcsIntDispenser dispenser;
     struct EcsWorldImpl* worlds;
     int capacity;
 };
@@ -68,7 +68,7 @@ EcsResult ecs_world_free(EcsWorld world) {
     return ECS_RESULT_SUCCESS;
 }
 
-Entity ecs_create_entity(EcsWorld world) {
+EcsEntity ecs_create_entity(EcsWorld world) {
     struct EcsWorldImpl* impl = world_manager.worlds + world;
     int id = ecs_dispenser_get(&impl->dispenser);
     ECS_ARRAY_RESIZE_DEFAULT(impl->entity_components, impl->capacity, id, sizeof(ComponentEnum), COMPONENT_ENUM_DEFAULT);
@@ -77,16 +77,16 @@ Entity ecs_create_entity(EcsWorld world) {
     ecs_component_enum_set_flag(entity_components, ecs_is_alive_flag, true);
     ecs_component_enum_set_flag(entity_components, ecs_is_enabled_flag, true);
 
-    Entity result = { world, id };
+    EcsEntity result = { world, id };
 
-    EcsEntityCreatedMessage message = { result };
+    EcsEcsEntityCreatedMessage message = { result };
 
-    ecs_event_publish(world, ecs_entity_created, void (*)(void*, EcsEntityCreatedMessage*), &message);
+    ecs_event_publish(world, ecs_entity_created, void (*)(void*, EcsEcsEntityCreatedMessage*), &message);
 
     return result;
 }
 
-EcsResult ecs_entity_free(Entity entity) {
+EcsResult ecs_entity_free(EcsEntity entity) {
     if((unsigned int)entity.world >= world_manager.capacity)
         return ECS_RESULT_INVALID_WORLD;
 
@@ -94,8 +94,8 @@ EcsResult ecs_entity_free(Entity entity) {
     if((unsigned int)entity.id >= impl->capacity)
         return ECS_RESULT_INVALID_ENTITY;
 
-    EcsEntityDisposedMessage message = { entity };
-    ecs_event_publish(entity.world, ecs_entity_disposed, void (*)(void*, EcsEntityDisposedMessage*), &message);
+    EcsEcsEntityDisposedMessage message = { entity };
+    ecs_event_publish(entity.world, ecs_entity_disposed, void (*)(void*, EcsEcsEntityDisposedMessage*), &message);
     
     ecs_component_enum_clear(impl->entity_components + entity.id);
     ecs_dispenser_release(&impl->dispenser, entity.id);
@@ -103,7 +103,7 @@ EcsResult ecs_entity_free(Entity entity) {
     return ECS_RESULT_SUCCESS;
 }
 
-EcsResult ecs_entity_enable(Entity entity) {
+EcsResult ecs_entity_enable(EcsEntity entity) {
     if((unsigned int)entity.world >= world_manager.capacity)
         return ECS_RESULT_INVALID_WORLD;
 
@@ -114,8 +114,8 @@ EcsResult ecs_entity_enable(Entity entity) {
     ComponentEnum* components = impl->entity_components + entity.id;
     if(!ecs_component_enum_get_flag(components, ecs_is_enabled_flag)) {
         ecs_component_enum_set_flag(components, ecs_is_enabled_flag, true);
-        EcsEntityEnabledMessage message = { entity };
-        ecs_event_publish(entity.world, ecs_entity_enabled, void (*)(void*, EcsEntityEnabledMessage*), &message);
+        EcsEcsEntityEnabledMessage message = { entity };
+        ecs_event_publish(entity.world, ecs_entity_enabled, void (*)(void*, EcsEcsEntityEnabledMessage*), &message);
 
         return ECS_RESULT_SUCCESS;
     }
@@ -123,7 +123,7 @@ EcsResult ecs_entity_enable(Entity entity) {
     return ECS_RESULT_INVALID_STATE;
 }
 
-EcsResult ecs_entity_disable(Entity entity) {
+EcsResult ecs_entity_disable(EcsEntity entity) {
     if((unsigned int)entity.world >= world_manager.capacity)
         return ECS_RESULT_INVALID_WORLD;
 
@@ -134,8 +134,8 @@ EcsResult ecs_entity_disable(Entity entity) {
     ComponentEnum* components = impl->entity_components + entity.id;
     if(ecs_component_enum_get_flag(components, ecs_is_enabled_flag)) {
         ecs_component_enum_set_flag(components, ecs_is_enabled_flag, false);
-        EcsEntityDisabledMessage message = { entity };
-        ecs_event_publish(entity.world, ecs_entity_disabled, void (*)(void*, EcsEntityDisabledMessage*), &message);
+        EcsEcsEntityDisabledMessage message = { entity };
+        ecs_event_publish(entity.world, ecs_entity_disabled, void (*)(void*, EcsEcsEntityDisabledMessage*), &message);
 
         return ECS_RESULT_SUCCESS;
     }
@@ -143,7 +143,7 @@ EcsResult ecs_entity_disable(Entity entity) {
     return ECS_RESULT_INVALID_STATE;
 }
 
-bool ecs_entity_is_alive(Entity entity) {
+bool ecs_entity_is_alive(EcsEntity entity) {
     if((unsigned int)entity.world >= world_manager.capacity)
         return ECS_RESULT_INVALID_WORLD;
 
@@ -153,7 +153,7 @@ bool ecs_entity_is_alive(Entity entity) {
     return ecs_component_enum_get_flag(impl->entity_components + entity.id, ecs_is_alive_flag);
 }
 
-bool ecs_entity_is_enabled(Entity entity) {
+bool ecs_entity_is_enabled(EcsEntity entity) {
     if((unsigned int)entity.world >= world_manager.capacity)
         return ECS_RESULT_INVALID_WORLD;
 
@@ -163,7 +163,7 @@ bool ecs_entity_is_enabled(Entity entity) {
     return ecs_component_enum_get_flag(impl->entity_components + entity.id, ecs_is_enabled_flag);
 }
 
-ComponentEnum* ecs_entity_get_components(Entity entity) {
+ComponentEnum* ecs_entity_get_components(EcsEntity entity) {
     struct EcsWorldImpl* impl = world_manager.worlds + entity.world;
     return impl->entity_components + entity.id;
 }

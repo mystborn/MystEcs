@@ -15,7 +15,7 @@ typedef struct EcsSystem EcsSystem;
 typedef struct EcsComponentSystem EcsComponentSystem;
 
 /// A system that iterates over all active entities with set of components.
-typedef struct EcsEntitySystem EcsEntitySystem;
+typedef struct EcsEcsEntitySystem EcsEcsEntitySystem;
 
 /// A system that calls a function once per update.
 typedef struct EcsActionSystem EcsActionSystem;
@@ -32,8 +32,8 @@ typedef void (*EcsSystemPostupdate)(EcsSystem*, float);
 /// A function that is called when an EcsComponentSystem updates.
 typedef void (*EcsSystemUpdateComponent)(EcsComponentSystem*, float, void*);
 
-/// A function that is called when an EcsEntitySystem updates.
-typedef void (*EcsSystemUpdateEntity)(EcsEntitySystem*, float, Entity);
+/// A function that is called when an EcsEcsEntitySystem updates.
+typedef void (*EcsSystemUpdateEcsEntity)(EcsEcsEntitySystem*, float, EcsEntity);
 
 /// A function that is called when an EcsActionSystem updates.
 typedef void (*EcsSystemUpdateAction)(EcsActionSystem*, float);
@@ -43,7 +43,7 @@ typedef enum EcsSystemType {
     /// An EcsComponentSystem
     ECS_SYSTEM_TYPE_COMPONENT,
 
-    /// An EcsEntitySystem
+    /// An EcsEcsEntitySystem
     ECS_SYSTEM_TYPE_ENTITY,
 
     /// An EcsSequentialSystem
@@ -65,16 +65,16 @@ struct EcsSystem {
 struct EcsComponentSystem {
 /// \privatesection
     EcsSystem base;
-    ComponentManager* manager;
+    EcsComponentManager* manager;
     EcsSystemUpdateComponent update;
     EcsWorld world;
 };
 
-struct EcsEntitySystem {
+struct EcsEcsEntitySystem {
 /// \privatesection
     EcsSystem base;
-    EntitySet* entities;
-    EcsSystemUpdateEntity update;
+    EcsEntitySet* entities;
+    EcsSystemUpdateEcsEntity update;
     EcsWorld world;
 };
 
@@ -120,7 +120,7 @@ bool ecs_system_disable(EcsSystem* system);
  */
 void ecs_component_system_init(EcsComponentSystem* system, 
                                EcsWorld world, 
-                               ComponentManager* component_type, 
+                               EcsComponentManager* component_type, 
                                EcsSystemUpdateComponent update, 
                                EcsSystemPreupdate preupdate, 
                                EcsSystemPostupdate postupdate);
@@ -136,11 +136,11 @@ void ecs_component_system_init(EcsComponentSystem* system,
     \param preupdate The function to call before each update. Can be NULL.
     \param postupdate The function to call after each update. Can be NULL.
  */
-void ecs_entity_system_init(EcsEntitySystem* system, 
+void ecs_entity_system_init(EcsEcsEntitySystem* system, 
                             EcsWorld world,
-                            EntitySetBuilder* builder,
+                            EcsEntitySetBuilder* builder,
                             bool free_builder,
-                            EcsSystemUpdateEntity update, 
+                            EcsSystemUpdateEcsEntity update, 
                             EcsSystemPreupdate preupdate, 
                             EcsSystemPostupdate postupdate);
 

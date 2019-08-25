@@ -5,8 +5,8 @@
 #include <check.h>
 #include "ecs.h"
 
-static ComponentManager* int_component;
-static ComponentManager* bool_component;
+static EcsComponentManager* int_component;
+static EcsComponentManager* bool_component;
 
 static EcsWorld world;
 
@@ -31,8 +31,8 @@ void builder_stop(void) {
 
 START_TEST(set_with_no_constaints_returns_all_entities) {
     int count = 3;
-    EntitySetBuilder* builder = ecs_entity_set_builder_init();
-    EntitySet* set = ecs_entity_set_build(builder, world, true);
+    EcsEntitySetBuilder* builder = ecs_entity_set_builder_init();
+    EcsEntitySet* set = ecs_entity_set_build(builder, world, true);
     for(int i = 0; i < count; i++)
         ecs_create_entity(world);
     int set_count;
@@ -45,11 +45,11 @@ END_TEST
 START_TEST(set_with_component_returns_all_entities_with_component) {
     int count = 4;
 
-    EntitySetBuilder* builder = ecs_entity_set_builder_init();
+    EcsEntitySetBuilder* builder = ecs_entity_set_builder_init();
     ecs_entity_set_with(builder, bool_component);
-    EntitySet* set = ecs_entity_set_build(builder, world, true);
+    EcsEntitySet* set = ecs_entity_set_build(builder, world, true);
 
-    Entity entities[4];
+    EcsEntity entities[4];
     for(int i = 0; i < count; i++)
         entities[i] = ecs_create_entity(world);
 
@@ -74,11 +74,11 @@ END_TEST
 START_TEST(set_without_component_returns_all_entities_without_component) {
     int count = 4;
     
-    EntitySetBuilder* builder = ecs_entity_set_builder_init();
+    EcsEntitySetBuilder* builder = ecs_entity_set_builder_init();
     ecs_entity_set_without(builder, int_component);
-    EntitySet* set = ecs_entity_set_build(builder, world, true);
+    EcsEntitySet* set = ecs_entity_set_build(builder, world, true);
 
-    Entity entities[4];
+    EcsEntity entities[4];
     for(int i = 0; i < count; i++)
         entities[i] = ecs_create_entity(world);
 
@@ -105,7 +105,7 @@ START_TEST(set_includes_previously_created_entity) {
     for(int i = 0; i < count; i++)
         ecs_create_entity(world);
 
-    EntitySet* set = ecs_entity_set_build(ecs_entity_set_builder_init(), world, true);
+    EcsEntitySet* set = ecs_entity_set_build(ecs_entity_set_builder_init(), world, true);
     int set_count;
     ecs_entity_set_get_entities(set, &set_count);
     ck_assert_msg(set_count == count, "Set did not include previously created entities");
@@ -115,10 +115,10 @@ START_TEST(set_includes_previously_created_entity) {
 END_TEST
 
 START_TEST(set_should_not_include_disabled_entity) {
-    EntitySet* set = ecs_entity_set_build(ecs_entity_set_builder_init(), world, true);
+    EcsEntitySet* set = ecs_entity_set_build(ecs_entity_set_builder_init(), world, true);
 
     int count = 4;
-    Entity entities[4];
+    EcsEntity entities[4];
     for(int i = 0; i < count; i++)
         entities[i] = ecs_create_entity(world);
 
@@ -136,8 +136,8 @@ END_TEST
 int main(void) {
     int number_failed;
 
-    Suite* s = suite_create("Entity Set");
-    TCase* tc_eb = tcase_create("Entity Set");
+    Suite* s = suite_create("EcsEntity Set");
+    TCase* tc_eb = tcase_create("EcsEntity Set");
 
     tcase_add_unchecked_fixture(tc_eb, builder_setup, builder_teardown);
     tcase_add_checked_fixture(tc_eb, builder_start, builder_stop);

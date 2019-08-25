@@ -30,7 +30,7 @@ typedef struct EcsClosure {
 /// A C# like event.
 typedef struct EcsEvent {
 /// \privatesection
-    IntDispenser dispenser;
+    EcsIntDispenser dispenser;
     EcsClosure* subscriptions;
     int capacity;
 } EcsEvent;

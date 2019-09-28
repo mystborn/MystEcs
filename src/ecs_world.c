@@ -79,9 +79,9 @@ EcsEntity ecs_create_entity(EcsWorld world) {
 
     EcsEntity result = { world, id };
 
-    EcsEcsEntityCreatedMessage message = { result };
+    EcsEntityCreatedMessage message = { result };
 
-    ecs_event_publish(world, ecs_entity_created, void (*)(void*, EcsEcsEntityCreatedMessage*), &message);
+    ecs_event_publish(world, ecs_entity_created, void (*)(void*, EcsEntityCreatedMessage*), &message);
 
     return result;
 }
@@ -94,8 +94,8 @@ EcsResult ecs_entity_free(EcsEntity entity) {
     if((unsigned int)entity.id >= impl->capacity)
         return ECS_RESULT_INVALID_ENTITY;
 
-    EcsEcsEntityDisposedMessage message = { entity };
-    ecs_event_publish(entity.world, ecs_entity_disposed, void (*)(void*, EcsEcsEntityDisposedMessage*), &message);
+    EcsEntityDisposedMessage message = { entity };
+    ecs_event_publish(entity.world, ecs_entity_disposed, void (*)(void*, EcsEntityDisposedMessage*), &message);
     
     ecs_component_enum_clear(impl->entity_components + entity.id);
     ecs_dispenser_release(&impl->dispenser, entity.id);
@@ -114,8 +114,8 @@ EcsResult ecs_entity_enable(EcsEntity entity) {
     ComponentEnum* components = impl->entity_components + entity.id;
     if(!ecs_component_enum_get_flag(components, ecs_is_enabled_flag)) {
         ecs_component_enum_set_flag(components, ecs_is_enabled_flag, true);
-        EcsEcsEntityEnabledMessage message = { entity };
-        ecs_event_publish(entity.world, ecs_entity_enabled, void (*)(void*, EcsEcsEntityEnabledMessage*), &message);
+        EcsEntityEnabledMessage message = { entity };
+        ecs_event_publish(entity.world, ecs_entity_enabled, void (*)(void*, EcsEntityEnabledMessage*), &message);
 
         return ECS_RESULT_SUCCESS;
     }
@@ -134,8 +134,8 @@ EcsResult ecs_entity_disable(EcsEntity entity) {
     ComponentEnum* components = impl->entity_components + entity.id;
     if(ecs_component_enum_get_flag(components, ecs_is_enabled_flag)) {
         ecs_component_enum_set_flag(components, ecs_is_enabled_flag, false);
-        EcsEcsEntityDisabledMessage message = { entity };
-        ecs_event_publish(entity.world, ecs_entity_disabled, void (*)(void*, EcsEcsEntityDisabledMessage*), &message);
+        EcsEntityDisabledMessage message = { entity };
+        ecs_event_publish(entity.world, ecs_entity_disabled, void (*)(void*, EcsEntityDisabledMessage*), &message);
 
         return ECS_RESULT_SUCCESS;
     }

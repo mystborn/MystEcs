@@ -106,11 +106,11 @@ static inline bool entity_set_filter_enum(EcsEntitySet* set, ComponentEnum* cenu
     return ecs_component_enum_contains_enum(cenum, &set->with) && ecs_component_enum_not_contains_enum(cenum, &set->without);
 }
 
-static void entity_set_entity_created_add(void* data, EcsEcsEntityCreatedMessage* message) {
+static void entity_set_entity_created_add(void* data, EcsEntityCreatedMessage* message) {
     entity_set_add((EcsEntitySet*)data, message->entity);
 }
 
-static void entity_set_entity_enabled_checked_add(void* data, EcsEcsEntityEnabledMessage* message) {
+static void entity_set_entity_enabled_checked_add(void* data, EcsEntityEnabledMessage* message) {
     EcsEntitySet* set = data;
     if(entity_set_filter_enum(set, ecs_entity_get_components(message->entity)))
         entity_set_add(set, message->entity);
@@ -128,11 +128,11 @@ static void entity_set_component_removed_checked_add(void* data, EcsComponentRem
         entity_set_add(set, message->entity);
 }
 
-static void entity_set_entity_disposed_remove(void* data, EcsEcsEntityDisposedMessage* message) {
+static void entity_set_entity_disposed_remove(void* data, EcsEntityDisposedMessage* message) {
     entity_set_remove((EcsEntitySet*)data, message->entity);
 }
 
-static void entity_set_entity_disabled_remove(void* data, EcsEcsEntityDisabledMessage* message) {
+static void entity_set_entity_disabled_remove(void* data, EcsEntityDisabledMessage* message) {
     entity_set_remove((EcsEntitySet*)data, message->entity);
 }
 

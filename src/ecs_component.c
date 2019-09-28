@@ -75,7 +75,7 @@ static void component_on_world_disposed(void* data, EcsWorldDisposedMessage* mes
     }
 }
 
-static void component_on_entity_disposed(void* data, EcsEcsEntityDisposedMessage* message) {
+static void component_on_entity_disposed(void* data, EcsEntityDisposedMessage* message) {
     EcsComponentManager* manager = data;
     ecs_component_remove(message->entity, manager);
 }

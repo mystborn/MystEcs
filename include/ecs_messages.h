@@ -9,28 +9,28 @@
 #include "ecs_event.h"
 
 /// Message sent when an EcsEntity is created.
-typedef struct EcsEcsEntityCreatedMessage {
+typedef struct EcsEntityCreatedMessage {
     /// The entity that was created.
     EcsEntity entity;
-} EcsEcsEntityCreatedMessage;
+} EcsEntityCreatedMessage;
 
 /// Message sent when an EcsEntity is freed.
-typedef struct EcsEcsEntityDisposedMessage {
+typedef struct EcsEntityDisposedMessage {
     /// The entity that was freed.
     EcsEntity entity;
-} EcsEcsEntityDisposedMessage;
+} EcsEntityDisposedMessage;
 
 /// Message sent when an EcsEntity is enabled.
-typedef struct EcsEcsEntityEnabledMessage {
+typedef struct EcsEntityEnabledMessage {
     /// The entity that was enabled.
     EcsEntity entity;
-} EcsEcsEntityEnabledMessage;
+} EcsEntityEnabledMessage;
 
 /// Message sent when an EcsEntity is disabled.
-typedef struct EcsEcsEntityDisabledMessage {
+typedef struct EcsEntityDisabledMessage {
     /// The entity that was disabled.
     EcsEntity entity;
-} EcsEcsEntityDisabledMessage;
+} EcsEntityDisabledMessage;
 
 // Todo: Remove the component field from 
 //       EcsComponentAddedMessage and EcsComponentRemovedMessage.

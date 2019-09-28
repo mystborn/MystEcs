@@ -15,7 +15,7 @@ typedef struct EcsSystem EcsSystem;
 typedef struct EcsComponentSystem EcsComponentSystem;
 
 /// A system that iterates over all active entities with set of components.
-typedef struct EcsEcsEntitySystem EcsEcsEntitySystem;
+typedef struct EcsEntitySystem EcsEntitySystem;
 
 /// A system that calls a function once per update.
 typedef struct EcsActionSystem EcsActionSystem;
@@ -32,8 +32,8 @@ typedef void (*EcsSystemPostupdate)(EcsSystem*, float);
 /// A function that is called when an EcsComponentSystem updates.
 typedef void (*EcsSystemUpdateComponent)(EcsComponentSystem*, float, void*);
 
-/// A function that is called when an EcsEcsEntitySystem updates.
-typedef void (*EcsSystemUpdateEcsEntity)(EcsEcsEntitySystem*, float, EcsEntity);
+/// A function that is called when an EcsEntitySystem updates.
+typedef void (*EcsSystemUpdateEcsEntity)(EcsEntitySystem*, float, EcsEntity);
 
 /// A function that is called when an EcsActionSystem updates.
 typedef void (*EcsSystemUpdateAction)(EcsActionSystem*, float);
@@ -43,7 +43,7 @@ typedef enum EcsSystemType {
     /// An EcsComponentSystem
     ECS_SYSTEM_TYPE_COMPONENT,
 
-    /// An EcsEcsEntitySystem
+    /// An EcsEntitySystem
     ECS_SYSTEM_TYPE_ENTITY,
 
     /// An EcsSequentialSystem
@@ -70,7 +70,7 @@ struct EcsComponentSystem {
     EcsWorld world;
 };
 
-struct EcsEcsEntitySystem {
+struct EcsEntitySystem {
 /// \privatesection
     EcsSystem base;
     EcsEntitySet* entities;
@@ -136,7 +136,7 @@ void ecs_component_system_init(EcsComponentSystem* system,
     \param preupdate The function to call before each update. Can be NULL.
     \param postupdate The function to call after each update. Can be NULL.
  */
-void ecs_entity_system_init(EcsEcsEntitySystem* system, 
+void ecs_entity_system_init(EcsEntitySystem* system, 
                             EcsWorld world,
                             EcsEntitySetBuilder* builder,
                             bool free_builder,

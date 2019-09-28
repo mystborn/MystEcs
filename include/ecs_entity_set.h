@@ -4,7 +4,7 @@
  * \brief A data structure that can be used to get all components with and without specific components.
  *
  * This header defines a data structure that can be used to get all entities with and without specific components.
- * It's primarily used by EcsEcsEntitySystem, but it can be used directly for more performance, or for
+ * It's primarily used by EcsEntitySystem, but it can be used directly for more performance, or for
  * specific operations where you need all of the entities at once.
  */
 #ifndef ECS_ENTITY_SET_H

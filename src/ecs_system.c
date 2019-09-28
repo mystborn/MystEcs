@@ -23,7 +23,7 @@ static void ecs_sequential_system_free(void* data, EcsSystem* system) {
 }
 
 static void ecs_entity_system_free(void* data, EcsSystem* system) {
-    EcsEcsEntitySystem* entity_system = (EcsEcsEntitySystem*)system;
+    EcsEntitySystem* entity_system = (EcsEntitySystem*)system;
     ecs_entity_set_free(entity_system->entities);
 }
 
@@ -60,7 +60,7 @@ void ecs_component_system_init(EcsComponentSystem* system,
     system->update = update;
 }
 
-void ecs_entity_system_init(EcsEcsEntitySystem* system, 
+void ecs_entity_system_init(EcsEntitySystem* system, 
                             EcsWorld world,
                             EcsEntitySetBuilder* builder,
                             bool free_builder,
@@ -187,7 +187,7 @@ void ecs_system_update(EcsSystem* system, float delta_time) {
             // which is the more general case, so it's used instead. If this is too large of a bottleneck,
             // a hybrid solution may be applicable.
 
-            EcsEcsEntitySystem* entity_system = (EcsEcsEntitySystem*)system;
+            EcsEntitySystem* entity_system = (EcsEntitySystem*)system;
             if(entity_system->update == NULL)
                 break;
 

@@ -14,7 +14,7 @@ void component_update(EcsComponentSystem* system, float state, void* item) {
     *(bool*)item = true;
 }
 
-void entity_update(EcsEcsEntitySystem* system, float state, EcsEntity entity) {
+void entity_update(EcsEntitySystem* system, float state, EcsEntity entity) {
     bool* item;
     ecs_component_get(entity, bool_component, &item);
     *item = true;
@@ -160,7 +160,7 @@ START_TEST(entity_enabled_update_all) {
     bool* c2 = ecs_component_set(entity2, bool_component);
     bool* c3 = ecs_component_set(entity3, bool_component);
 
-    EcsEcsEntitySystem system;
+    EcsEntitySystem system;
     ecs_entity_system_init(&system, world, builder, true, entity_update, NULL, NULL);
 
     ecs_system_update(&system, 0);
@@ -184,7 +184,7 @@ START_TEST(entity_enabled_update_some) {
     bool* c3 = ecs_component_set(entity3, bool_component);
     ecs_component_set(entity2, int_component);
 
-    EcsEcsEntitySystem system;
+    EcsEntitySystem system;
     ecs_entity_system_init(&system, world, builder, true, entity_update, NULL, NULL);
 
     ecs_system_update(&system, 0);
@@ -207,7 +207,7 @@ START_TEST(entity_disabled_update_none) {
     bool* c2 = ecs_component_set(entity2, bool_component);
     bool* c3 = ecs_component_set(entity3, bool_component);
 
-    EcsEcsEntitySystem system;
+    EcsEntitySystem system;
     ecs_entity_system_init(&system, world, builder, true, entity_update, NULL, NULL);
 
     ecs_system_disable(&system);

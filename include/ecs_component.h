@@ -19,7 +19,7 @@ typedef struct EcsComponentManager {
     /// The unique identifer of this component type.
     ComponentFlag flag;
 
-/// \privatesection
+/// @privatesection
 
     EcsComponentConstructor constructor;
     EcsComponentDestructor destructor;
@@ -37,58 +37,70 @@ typedef struct EcsComponentManager {
     int world_disposed_id;
 } EcsComponentManager;
 
-/*!
-  \brief Creates a new component type.
-
-  \param component_size The size of the component type. Used to allocate new components.
-  \param constructor A function that is called when a new component is created. Can be NULL.
-  \param destructor A function that is called when a component is removed. Can be NULL.
-  \return A new EcsComponentManager
+/**
+ * Creates a new component type.
+ *
+ * @param component_size The size of the component type. Used to allocate new components.
+ * @param constructor A function that is called when a new component is created. Can be NULL.
+ * @param destructor A function that is called when a component is removed. Can be NULL.
+ *
+ * @return A new EcsComponentManager
  */
 EcsComponentManager* ecs_component_define(int component_size, EcsComponentConstructor constructor, EcsComponentDestructor destructor);
 
 /// Frees all components owned by a EcsComponentManager, then frees the manager.
 void ecs_component_free(EcsComponentManager* manager);
 
-/*!
-  \brief Creates and associates a component with an entity.
-
-  \return A pointer to the new component. This will be one level of indirection higher than the component type.
+/**
+ * Creates and associates a component with an entity.
+ *
+ * @return A pointer to the new component. This will be one level of indirection higher than the component type.
  */
 void* ecs_component_set(EcsEntity entity, EcsComponentManager* manager);
 
-/*!
-  \brief Associates a component owned by a reference entity with another entity.
-
-  \param entity The entity to add a component to.
-  \param reference The entity that already owns the component.
-  \param manager The component type.
+/**
+ * Associates a component owned by a reference entity with another entity.
+ *
+ * @param entity The entity to add a component to.
+ * @param reference The entity that already owns the component.
+ * @param manager The component type.
+ * 
+ * @return ECS_RESULT_SUCCESS on success, 
+ *         ECS_RESULT_DIFFERENT_WORLD if the entities exist in different worlds,
+ *         ECS_RESULT_INVALID_ENTITY if the reference entity doesn't have the component.
  */
 EcsResult ecs_component_set_same_as(EcsEntity entity, EcsEntity reference, EcsComponentManager* manager);
 
-/// Removes a component from an entity.
+/**
+ * Removes a component from an entity.
+ * 
+ * @return ECS_RESULT_SUCCESS on success,
+ *         ECS_RESULT_INVALID_ENTITY if the entity doesn't have the component.
+ */
 EcsResult ecs_component_remove(EcsEntity entity, EcsComponentManager* manager);
 
-/*!
-  \brief Get a component associated with an entity.
-
-  \param entity The entity that owns the component.
-  \param manager The type of the component to get.
-  \param component A pointer that is filled with the component value. Should be two levels of indirection higher than the actual component type.
-                   (i.e. if the component type is int, the value passed to the function should be int**)
+/**
+ * Get a component associated with an entity.
+ *
+ * @param entity The entity that owns the component.
+ * @param manager The type of the component to get.
+ * @param component A pointer that is filled with the component value. Should be two levels of indirection higher than the actual component type.
+ *                  (i.e. if the component type is int, the value passed to the function should be int**)
+ * @return ECS_RESULT_SUCCESS on success,
+ *         ECS_RESULT_INVALID_ENTITY if the entity doesn't have the component
  */
 EcsResult ecs_component_get(EcsEntity entity, EcsComponentManager* manager, void** component);
 
 /// Determines if a component is associated with an entity.
 bool ecs_component_exists(EcsEntity entity, EcsComponentManager*);
 
-/*!
-  \brief Gets all created components, regardless if they're enabled or not.
-
-  \param world The world to get all of the components from.
-  \param manager The type of the component to get.
-  \param count An int pointer that is filled with the number of components.
-  \return An array that holds the components. Do not free this array.
+/**
+ * Gets all created components, regardless if they're enabled or not.
+ *
+ * @param world The world to get all of the components from.
+ * @param manager The type of the component to get.
+ * @param count An int pointer that is filled with the number of components.
+ * @return An array that holds the components. Do not free this array.
  */
 void* ecs_component_get_all(EcsWorld world, EcsComponentManager* manager, int* count);
 

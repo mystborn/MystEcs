@@ -10,17 +10,17 @@ typedef struct EcsClosure {
     /// The called or environment of the closure.
     void* data;
 
-    /*!
-       \brief The function pointer that the closure will invoke.
-       
-       Technically this is not proper C, as a function pointer is not
-       guarunteed to fit in a void*, but it will on most modern
-       systems, which is the target audience of this library,
-       so this is fine. This is valid on POSIX compliant systems.
+    /**
+     * The function pointer that the closure will invoke.
+     * 
+     * Technically this is not proper C, as a function pointer is not
+     * guaranteed to fit in a void*, but it will on most modern
+     * systems, which is the target audience of this library,
+     * so this is fine. This is valid on POSIX compliant systems.
      */
     void* function;
 
-/// \privatesection
+/// @privatesection
     bool active;
 } EcsClosure;
 

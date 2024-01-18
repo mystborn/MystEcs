@@ -1,14 +1,12 @@
 #ifndef ECS_ECS_COMMON_H
 #define ECS_ECS_COMMON_H
 
-// Bad practice, but includes and defines files and functions needed by essentially every file.
-
 #include <stdbool.h>
 #include <stddef.h>
 #include "ecs_array.h"
 
 // Originally these were defined to use the SDL version of each function if the library was
-// availabe, however I ran into a bug with SDL_malloc or SDL_realloc that was overwriting valid
+// available, however I ran into a bug with SDL_malloc or SDL_realloc that was overwriting valid
 // information, so now we stick to the tried and true std versions.
 
 // For anyone wondering, the place where I encountered the bug was in 'ecs_event.c' when

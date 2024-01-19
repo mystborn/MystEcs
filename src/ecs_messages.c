@@ -1,4 +1,5 @@
 #include "ecs_messages.h"
+#include "ecs_init.h"
 
 EcsEventManager* ecs_entity_created;
 EcsEventManager* ecs_entity_disposed;

@@ -1,4 +1,5 @@
 #include "ecs_world.h"
+#include "ecs_init.h"
 
 #include <stdio.h>
 

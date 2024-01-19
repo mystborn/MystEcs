@@ -1,7 +1,7 @@
-/*!
+/**
  * @file
  *
- * \brief A utility struct that gets open ids.
+ * A utility struct that gets open ids.
  *
  * This header defines a utility struct that gets open ids.
  * Typically used to keep elements in an array as close together as possible

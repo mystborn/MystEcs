@@ -56,7 +56,7 @@ void ecs_component_free(EcsComponentManager* manager);
  *
  * @return A pointer to the new component. This will be one level of indirection higher than the component type.
  */
-void* ecs_component_set(EcsEntity entity, EcsComponentManager* manager);
+void* ecs_entity_set(EcsEntity entity, EcsComponentManager* manager);
 
 /**
  * Associates a component owned by a reference entity with another entity.
@@ -69,7 +69,7 @@ void* ecs_component_set(EcsEntity entity, EcsComponentManager* manager);
  *         ECS_RESULT_DIFFERENT_WORLD if the entities exist in different worlds,
  *         ECS_RESULT_INVALID_ENTITY if the reference entity doesn't have the component.
  */
-EcsResult ecs_component_set_same_as(EcsEntity entity, EcsEntity reference, EcsComponentManager* manager);
+EcsResult ecs_entity_set_same_as(EcsEntity entity, EcsEntity reference, EcsComponentManager* manager);
 
 /**
  * Removes a component from an entity.
@@ -77,7 +77,7 @@ EcsResult ecs_component_set_same_as(EcsEntity entity, EcsEntity reference, EcsCo
  * @return ECS_RESULT_SUCCESS on success,
  *         ECS_RESULT_INVALID_ENTITY if the entity doesn't have the component.
  */
-EcsResult ecs_component_remove(EcsEntity entity, EcsComponentManager* manager);
+EcsResult ecs_entity_remove(EcsEntity entity, EcsComponentManager* manager);
 
 /**
  * Get a component associated with an entity.
@@ -89,10 +89,10 @@ EcsResult ecs_component_remove(EcsEntity entity, EcsComponentManager* manager);
  * @return ECS_RESULT_SUCCESS on success,
  *         ECS_RESULT_INVALID_ENTITY if the entity doesn't have the component
  */
-EcsResult ecs_component_get(EcsEntity entity, EcsComponentManager* manager, void** component);
+EcsResult ecs_entity_get(EcsEntity entity, EcsComponentManager* manager, void** component);
 
 /// Determines if a component is associated with an entity.
-bool ecs_component_exists(EcsEntity entity, EcsComponentManager*);
+bool ecs_entity_has(EcsEntity entity, EcsComponentManager*);
 
 /**
  * Gets all created components, regardless if they're enabled or not.

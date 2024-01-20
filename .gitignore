@@ -1,3 +1,4 @@
 Build/
 docs/
 .clang_complete
+.vscode

@@ -6,7 +6,7 @@ static EcsClosure ECS_CLOSURE_DEFAULT = { NULL, NULL, false };
 
 static void event_on_world_disposed(void* data, EcsWorldDisposedMessage* message) {
     EcsEventManager* manager = data;
-    if(message->world < manager->capacity && manager->events[message->world] != NULL) {
+    if((unsigned int)message->world < manager->capacity && manager->events[message->world] != NULL) {
         ecs_event_free(manager->events[message->world]);
         manager->events[message->world] = NULL;
     }

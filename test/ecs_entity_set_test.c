@@ -59,13 +59,20 @@ START_TEST(set_with_component_returns_all_entities_with_component) {
 
     for(int i = 0; i < count; i++)
         ecs_component_set(entities[i], bool_component);
-    ecs_entity_set_get_entities(set, &set_count);
+
+    EcsEntity* result =  ecs_entity_set_get_entities(set, &set_count);
     ck_assert_msg(set_count == count, "Set missing valid entities");
 
+    for (int i = 0; i < set_count; i++)
+        ck_assert(ecs_component_exists(result[i], bool_component));
+
     ecs_component_remove(entities[2], bool_component);
-    ecs_entity_set_get_entities(set, &set_count);
+    result = ecs_entity_set_get_entities(set, &set_count);
 
     ck_assert_msg(set_count == count - 1, "Set contains invalid entities");
+
+    for (int i = 0; i < set_count; i++)
+        ck_assert(ecs_component_exists(result[i], bool_component));
 
     ecs_entity_set_free(set);
 }
@@ -83,18 +90,27 @@ START_TEST(set_without_component_returns_all_entities_without_component) {
         entities[i] = ecs_create_entity(world);
 
     int set_count;
-    ecs_entity_set_get_entities(set, &set_count);
+    EcsEntity* result = ecs_entity_set_get_entities(set, &set_count);
     ck_assert_msg(set_count == count, "Set missing valid entities");
+
+    for (int i = 0; i < set_count; i++)
+        ck_assert(!ecs_component_exists(result[i], int_component));
 
     for(int i = 0; i < count; i++)
         ecs_component_set(entities[i], int_component);
-    ecs_entity_set_get_entities(set, &set_count);
+    result = ecs_entity_set_get_entities(set, &set_count);
     ck_assert_msg(set_count == 0, "Set filled with invalid entities");
 
+    for (int i = 0; i < set_count; i++)
+        ck_assert(!ecs_component_exists(result[i], int_component));
+
     ecs_component_remove(entities[2], int_component);
-    ecs_entity_set_get_entities(set, &set_count);
+    result = ecs_entity_set_get_entities(set, &set_count);
 
     ck_assert_msg(set_count == 1, "Set does not contain all valid entities");
+
+    for (int i = 0; i < set_count; i++)
+        ck_assert(!ecs_component_exists(result[i], int_component));
 
     ecs_entity_set_free(set);
 }

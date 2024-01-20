@@ -7,7 +7,7 @@ include_files = ['include']
 
 inc = include_directories(include_files)
 
-if check_location != ''
+if check_location != '' and check_location != 'true'
     test_inc = include_directories(include_files + [check_location + '/include'])
 endif
 
@@ -18,6 +18,7 @@ subdir('src')
 # so we need to specify the suffix.
 
 if build_machine.system() == 'windows'
+
     myst_ecs = static_library('myst_ecs',
         lib_sources,
         include_directories: inc,

@@ -160,7 +160,6 @@ static EcsComponentPool* ecs_component_pool_get_or_create(EcsComponentManager* m
 void* ecs_component_set(EcsEntity entity, EcsComponentManager* manager) {
     ComponentEnum* components;
     void* result;
-    bool was_set = false;
     EcsComponentPool* pool = ecs_component_pool_get_or_create(manager, entity.world);
 
     ECS_ARRAY_RESIZE_DEFAULT(pool->mapping, pool->mapping_count, entity.id, sizeof(*pool->mapping), -1);

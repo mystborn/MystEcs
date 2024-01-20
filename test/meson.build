@@ -1,6 +1,5 @@
-check_lib = check_location + '/lib'
-
-if build_machine.system() == 'windows'
+if check_location != 'true'
+    check_lib = check_location + '/lib'
 
     compat = c_comp.find_library('compat',
                                  required: true,
@@ -14,10 +13,11 @@ if build_machine.system() == 'windows'
 
 else
 
-    check = c_comp.find_library('check',
-        required: true)
+    check = dependency('check', method: 'pkg-config')
     
     deps = [check]
+
+    test_inc = inc
 
 endif
 

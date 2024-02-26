@@ -32,7 +32,7 @@ void ecs_world_system_init(void) {
     world_manager.capacity = 0;
 }
 
-EcsWorld ecs_world_init(void) {
+ECS_EXPORT EcsWorld ecs_world_init(void) {
     EcsWorld id = ecs_dispenser_get(&world_manager.dispenser);
 
     ECS_ARRAY_RESIZE(world_manager.worlds, world_manager.capacity, id, sizeof(struct EcsWorldImpl));
@@ -46,7 +46,7 @@ EcsWorld ecs_world_init(void) {
     return id;
 }
 
-EcsResult ecs_world_free(EcsWorld world) {
+ECS_EXPORT EcsResult ecs_world_free(EcsWorld world) {
     if((unsigned int)world >= world_manager.capacity)
         return ECS_RESULT_INVALID_WORLD;
 
@@ -69,7 +69,7 @@ EcsResult ecs_world_free(EcsWorld world) {
     return ECS_RESULT_SUCCESS;
 }
 
-EcsEntity ecs_create_entity(EcsWorld world) {
+ECS_EXPORT EcsEntity ecs_create_entity(EcsWorld world) {
     struct EcsWorldImpl* impl = world_manager.worlds + world;
     int id = ecs_dispenser_get(&impl->dispenser);
     ECS_ARRAY_RESIZE_DEFAULT(impl->entity_components, impl->capacity, id, sizeof(ComponentEnum), COMPONENT_ENUM_DEFAULT);
@@ -87,7 +87,7 @@ EcsEntity ecs_create_entity(EcsWorld world) {
     return result;
 }
 
-EcsResult ecs_entity_free(EcsEntity entity) {
+ECS_EXPORT EcsResult ecs_entity_free(EcsEntity entity) {
     if((unsigned int)entity.world >= world_manager.capacity)
         return ECS_RESULT_INVALID_WORLD;
 
@@ -104,7 +104,7 @@ EcsResult ecs_entity_free(EcsEntity entity) {
     return ECS_RESULT_SUCCESS;
 }
 
-EcsResult ecs_entity_enable(EcsEntity entity) {
+ECS_EXPORT EcsResult ecs_entity_enable(EcsEntity entity) {
     if((unsigned int)entity.world >= world_manager.capacity)
         return ECS_RESULT_INVALID_WORLD;
 
@@ -124,7 +124,7 @@ EcsResult ecs_entity_enable(EcsEntity entity) {
     return ECS_RESULT_INVALID_STATE;
 }
 
-EcsResult ecs_entity_disable(EcsEntity entity) {
+ECS_EXPORT EcsResult ecs_entity_disable(EcsEntity entity) {
     if((unsigned int)entity.world >= world_manager.capacity)
         return ECS_RESULT_INVALID_WORLD;
 
@@ -144,7 +144,7 @@ EcsResult ecs_entity_disable(EcsEntity entity) {
     return ECS_RESULT_INVALID_STATE;
 }
 
-bool ecs_entity_is_alive(EcsEntity entity) {
+ECS_EXPORT bool ecs_entity_is_alive(EcsEntity entity) {
     if((unsigned int)entity.world >= world_manager.capacity)
         return ECS_RESULT_INVALID_WORLD;
 
@@ -154,7 +154,7 @@ bool ecs_entity_is_alive(EcsEntity entity) {
     return ecs_component_enum_get_flag(impl->entity_components + entity.id, ecs_is_alive_flag);
 }
 
-bool ecs_entity_is_enabled(EcsEntity entity) {
+ECS_EXPORT bool ecs_entity_is_enabled(EcsEntity entity) {
     if((unsigned int)entity.world >= world_manager.capacity)
         return ECS_RESULT_INVALID_WORLD;
 
@@ -164,12 +164,12 @@ bool ecs_entity_is_enabled(EcsEntity entity) {
     return ecs_component_enum_get_flag(impl->entity_components + entity.id, ecs_is_enabled_flag);
 }
 
-ComponentEnum* ecs_entity_get_components(EcsEntity entity) {
+ECS_EXPORT ComponentEnum* ecs_entity_get_components(EcsEntity entity) {
     struct EcsWorldImpl* impl = world_manager.worlds + entity.world;
     return impl->entity_components + entity.id;
 }
 
-ComponentEnum* ecs_world_get_components(EcsWorld world, int* count) {
+ECS_EXPORT ComponentEnum* ecs_world_get_components(EcsWorld world, int* count) {
     struct EcsWorldImpl* impl = world_manager.worlds + world;
 
     *count = impl->dispenser.total;

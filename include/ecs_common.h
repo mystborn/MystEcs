@@ -1,6 +1,22 @@
 #ifndef ECS_ECS_COMMON_H
 #define ECS_ECS_COMMON_H
 
+#ifdef ECS_BUILD
+    #if defined(_WIN32)
+        #define ECS_EXPORT __declspec(dllexport)
+    #elif defined(__ELF__)
+        #define ECS_EXPORT __attribute__((visibility ("default")))
+    #else
+        #define ECS_EXPORT
+    #endif
+#else
+    #if defined(_WIN32)
+        #define ECS_EXPORT __declspec(dllimport)
+    #else
+        #define ECS_EXPORT
+    #endif
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 #include "ecs_array.h"

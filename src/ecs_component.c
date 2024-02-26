@@ -95,7 +95,7 @@ static EcsComponentPool* ecs_component_pool_init(int world, int component_size) 
     return pool;
 }
 
-EcsComponentManager* ecs_component_define(int component_size, EcsComponentConstructor constructor, EcsComponentDestructor destructor) {
+ECS_EXPORT EcsComponentManager* ecs_component_define(int component_size, EcsComponentConstructor constructor, EcsComponentDestructor destructor) {
     EcsComponentManager* manager = ecs_malloc(sizeof(EcsComponentManager));
     manager->flag = ecs_component_flag_get();
     manager->constructor = constructor;
@@ -110,7 +110,7 @@ EcsComponentManager* ecs_component_define(int component_size, EcsComponentConstr
     return manager;
 }
 
-void ecs_component_free(EcsComponentManager* manager) {
+ECS_EXPORT void ecs_component_free(EcsComponentManager* manager) {
     if(manager->pools != NULL) {
         for(int i = 0; i < manager->pool_count; i++) {
             if(manager->pools[i] != NULL) {
@@ -157,7 +157,7 @@ static EcsComponentPool* ecs_component_pool_get_or_create(EcsComponentManager* m
                           &(EcsComponentAddedMessage){ entity, manager, result }); \
     }
 
-void* ecs_entity_set(EcsEntity entity, EcsComponentManager* manager) {
+ECS_EXPORT void* ecs_entity_set(EcsEntity entity, EcsComponentManager* manager) {
     ComponentEnum* components;
     void* result;
     EcsComponentPool* pool = ecs_component_pool_get_or_create(manager, entity.world);
@@ -202,7 +202,7 @@ void* ecs_entity_set(EcsEntity entity, EcsComponentManager* manager) {
 
 }
 
-EcsResult ecs_entity_set_same_as(EcsEntity entity, EcsEntity reference, EcsComponentManager* manager) {
+ECS_EXPORT EcsResult ecs_entity_set_same_as(EcsEntity entity, EcsEntity reference, EcsComponentManager* manager) {
     if(entity.world != reference.world)
         return ECS_RESULT_DIFFERENT_WORLD;
 
@@ -233,7 +233,7 @@ EcsResult ecs_entity_set_same_as(EcsEntity entity, EcsEntity reference, EcsCompo
     return ECS_RESULT_SUCCESS;
 }
 
-EcsResult ecs_entity_remove(EcsEntity entity, EcsComponentManager* manager) {
+ECS_EXPORT EcsResult ecs_entity_remove(EcsEntity entity, EcsComponentManager* manager) {
     EcsComponentPool* pool = ecs_component_pool_get_or_create(manager, entity.world);
 
     if(entity.id >= pool->mapping_count)
@@ -284,7 +284,7 @@ EcsResult ecs_entity_remove(EcsEntity entity, EcsComponentManager* manager) {
     return ECS_RESULT_SUCCESS;
 }
 
-EcsResult ecs_entity_get(EcsEntity entity, EcsComponentManager* manager, void** data) {
+ECS_EXPORT EcsResult ecs_entity_get(EcsEntity entity, EcsComponentManager* manager, void** data) {
     EcsComponentPool* pool = ecs_component_pool_get_or_create(manager, entity.world);
 
     if(entity.id >= pool->mapping_count)
@@ -298,7 +298,7 @@ EcsResult ecs_entity_get(EcsEntity entity, EcsComponentManager* manager, void** 
     return ECS_RESULT_SUCCESS;
 }
 
-bool ecs_entity_has(EcsEntity entity, EcsComponentManager* manager) {
+ECS_EXPORT bool ecs_entity_has(EcsEntity entity, EcsComponentManager* manager) {
     EcsComponentPool* pool = ecs_component_pool_get_or_create(manager, entity.world);
 
     if(entity.id >= pool->mapping_count)
@@ -307,7 +307,7 @@ bool ecs_entity_has(EcsEntity entity, EcsComponentManager* manager) {
     return pool->mapping[entity.id] != -1;
 }
 
-void* ecs_component_get_all(EcsWorld world, EcsComponentManager* manager, int* count) {
+ECS_EXPORT void* ecs_component_get_all(EcsWorld world, EcsComponentManager* manager, int* count) {
     EcsComponentPool* pool = ecs_component_pool_get_or_create(manager, world);
     *count = pool->last_component_index + 1;
     return pool->components;

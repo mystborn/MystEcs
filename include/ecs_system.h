@@ -149,20 +149,20 @@ struct EcsSequentialSystem {
  * @param preupdate The function to call before each update. Can be NULL.
  * @param postupdate The function to call after each update. Can be NULL.
  */
-void ecs_system_init(
+ECS_EXPORT void ecs_system_init(
     EcsSystem* system,
     EcsSystemType type,
     EcsSystemPreupdate preupdate,
     EcsSystemPostupdate postupdate);
 
 /// Frees all of the resources held by a system, and calls it's dispose event. Does not free the system.
-void ecs_system_free_resources(EcsSystem* system);
+ECS_EXPORT void ecs_system_free_resources(EcsSystem* system);
 
 /// Enables a previously disabled system. Returns true if the system was successfully enabled.
-bool ecs_system_enable(EcsSystem* system);
+ECS_EXPORT bool ecs_system_enable(EcsSystem* system);
 
 /// Disables an enabled system. Returns true if the system was successfully disabled.
-bool ecs_system_disable(EcsSystem* system);
+ECS_EXPORT bool ecs_system_disable(EcsSystem* system);
 
 /// Gets the dispose event from a system. Can be used with 
 /// any type as long as its first member is a system.
@@ -178,7 +178,7 @@ bool ecs_system_disable(EcsSystem* system);
  * @param preupdate The function to call before each update. Can be NULL.
  * @param postupdate The function to call after each update. Can be NULL.
  */
-void ecs_component_system_init(
+ECS_EXPORT void ecs_component_system_init(
     EcsComponentSystem* system, 
     EcsWorld world, 
     EcsComponentManager* component_type, 
@@ -197,7 +197,7 @@ void ecs_component_system_init(
  * @param preupdate The function to call before each update. Can be NULL.
  * @param postupdate The function to call after each update. Can be NULL.
  */
-void ecs_entity_system_init(
+ECS_EXPORT void ecs_entity_system_init(
     EcsEntitySystem* system, 
     EcsWorld world,
     EcsEntitySetBuilder* builder,
@@ -214,13 +214,13 @@ void ecs_entity_system_init(
  * @param preupdate The function to call before each update. Can be NULL.
  * @param postupdate The function to call after each update. Can be NULL.
  */
-void ecs_action_system_init(
+ECS_EXPORT void ecs_action_system_init(
     EcsActionSystem* system, 
     EcsSystemUpdateAction update, 
     EcsSystemPreupdate preupdate, 
     EcsSystemPostupdate postupdate);
 
-void ecs_closure_system_init(
+ECS_EXPORT void ecs_closure_system_init(
     EcsClosureSystem* system,
     EcsSystemUpdateClosure update,
     EcsSystemPreupdate preupdate,
@@ -237,7 +237,7 @@ void ecs_closure_system_init(
  * @param count The number of children systems given to this function.
  * @param ... The children systems to add to the sequential system.
  */
-void ecs_sequential_system_init(
+ECS_EXPORT void ecs_sequential_system_init(
     EcsSequentialSystem* system, 
     EcsSystemPreupdate preupdate, 
     EcsSystemPostupdate postupdate,
@@ -257,7 +257,7 @@ void ecs_sequential_system_init(
  * @param systems The systems to add to the sequential system. 
  *                The values are copied from the array, so it can be safely freed after the function has been called.
  */
-void ecs_sequential_system_init_array(
+ECS_EXPORT void ecs_sequential_system_init_array(
     EcsSequentialSystem* system, 
     EcsSystemPreupdate preupdate, 
     EcsSystemPostupdate postupdate,
@@ -276,7 +276,7 @@ void ecs_sequential_system_init_array(
  * @param count The number of children systems inside of the va_list.
  * @param list A va_list containing children systems to add to the sequential system.
  */
-void ecs_sequential_system_init_list(
+ECS_EXPORT void ecs_sequential_system_init_list(
     EcsSequentialSystem* system, 
     EcsSystemPreupdate preupdate, 
     EcsSystemPostupdate postupdate,
@@ -290,6 +290,6 @@ void ecs_sequential_system_init_list(
  * @param system The system to update.
  * @param delta_time The time since the last update.
  */
-void ecs_system_update(EcsSystem* system, float delta_time);
+ECS_EXPORT void ecs_system_update(EcsSystem* system, float delta_time);
 
 #endif

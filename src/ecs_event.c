@@ -12,7 +12,7 @@ static void event_on_world_disposed(void* data, EcsWorldDisposedMessage* message
     }
 }
 
-EcsEventManager* ecs_event_define(void) {
+ECS_EXPORT EcsEventManager* ecs_event_define(void) {
     EcsEventManager* manager = ecs_malloc(sizeof(EcsEventManager));
 
     manager->events = NULL;
@@ -22,7 +22,7 @@ EcsEventManager* ecs_event_define(void) {
     return manager;
 }
 
-void ecs_event_manager_free(EcsEventManager* manager) {
+ECS_EXPORT void ecs_event_manager_free(EcsEventManager* manager) {
     ecs_event_remove(ecs_world_disposed, manager->id);
 
     if(manager->events != NULL) {
@@ -36,7 +36,7 @@ void ecs_event_manager_free(EcsEventManager* manager) {
     ecs_free(manager);
 }
 
-int ecs_event_subscribe(EcsWorld world, EcsEventManager* manager, EcsClosure closure) {
+ECS_EXPORT int ecs_event_subscribe(EcsWorld world, EcsEventManager* manager, EcsClosure closure) {
     ECS_ARRAY_RESIZE_DEFAULT(manager->events, manager->capacity, world, sizeof(EcsEvent*), NULL);
 
     if(manager->events[world] == NULL)
@@ -45,7 +45,7 @@ int ecs_event_subscribe(EcsWorld world, EcsEventManager* manager, EcsClosure clo
     return ecs_event_add(manager->events[world], closure);
 }
 
-EcsResult ecs_event_unsubscribe(EcsWorld world, EcsEventManager* manager, int id) {
+ECS_EXPORT EcsResult ecs_event_unsubscribe(EcsWorld world, EcsEventManager* manager, int id) {
     if(world >= manager->capacity)
         return ECS_RESULT_INVALID_WORLD;
 
@@ -56,7 +56,7 @@ EcsResult ecs_event_unsubscribe(EcsWorld world, EcsEventManager* manager, int id
     return ecs_event_remove(event, id) ? ECS_RESULT_SUCCESS : ECS_RESULT_INVALID_WORLD;
 }
 
-EcsEvent* ecs_event_init(void) {
+ECS_EXPORT EcsEvent* ecs_event_init(void) {
     EcsEvent* event = ecs_malloc(sizeof(EcsEvent));
     ecs_dispenser_init(&event->dispenser);
     event->subscriptions = NULL;
@@ -64,14 +64,14 @@ EcsEvent* ecs_event_init(void) {
     return event;
 }
 
-void ecs_event_free(EcsEvent* event) {
+ECS_EXPORT void ecs_event_free(EcsEvent* event) {
     if(event->subscriptions != NULL)
         ecs_free(event->subscriptions);
     ecs_dispenser_free_resources(&event->dispenser);
     ecs_free(event);
 }
 
-int ecs_event_add(EcsEvent* event, EcsClosure closure) {
+ECS_EXPORT int ecs_event_add(EcsEvent* event, EcsClosure closure) {
     int id = ecs_dispenser_get(&event->dispenser);
     ECS_ARRAY_RESIZE_DEFAULT(event->subscriptions, event->capacity, id, sizeof(EcsClosure), ECS_CLOSURE_DEFAULT);
     event->subscriptions[id] = closure;
@@ -80,7 +80,7 @@ int ecs_event_add(EcsEvent* event, EcsClosure closure) {
     return id;
 }
 
-bool ecs_event_remove(EcsEvent* event, int id) {
+ECS_EXPORT bool ecs_event_remove(EcsEvent* event, int id) {
     if((unsigned int)id >= event->capacity || !event->subscriptions[id].active)
         return false;
 

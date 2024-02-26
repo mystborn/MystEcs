@@ -44,7 +44,7 @@ typedef struct EcsEventManager {
 } EcsEventManager;
 
 /// Defines a new event manager.
-EcsEventManager* ecs_event_define(void);
+ECS_EXPORT EcsEventManager* ecs_event_define(void);
 
 /**
  * Frees all events owned by an event manager, then frees the manager.
@@ -52,7 +52,7 @@ EcsEventManager* ecs_event_define(void);
  *
  * @param manager The event manager to free.
  */
-void ecs_event_manager_free(EcsEventManager* manager);
+ECS_EXPORT void ecs_event_manager_free(EcsEventManager* manager);
 
 /**
  * Subscribes a function to an event manager.
@@ -62,7 +62,7 @@ void ecs_event_manager_free(EcsEventManager* manager);
  * @param closure The function to subscribe.
  * @return An id that can be used to unsubscribe if needed.
  */
-int ecs_event_subscribe(EcsWorld world, EcsEventManager* manager, EcsClosure closure);
+ECS_EXPORT int ecs_event_subscribe(EcsWorld world, EcsEventManager* manager, EcsClosure closure);
 
 /**
  * Unsubscribes a function from an event manager.
@@ -71,17 +71,17 @@ int ecs_event_subscribe(EcsWorld world, EcsEventManager* manager, EcsClosure clo
  * @param manager The manager to unsubscribe from.
  * @param id The id that was previously returned when ecs_event_subscribe was called.
  */
-EcsResult ecs_event_unsubscribe(EcsWorld world, EcsEventManager* manager, int id);
+ECS_EXPORT EcsResult ecs_event_unsubscribe(EcsWorld world, EcsEventManager* manager, int id);
 
 /// Creates and initializes a new event.
-EcsEvent* ecs_event_init(void);
+ECS_EXPORT EcsEvent* ecs_event_init(void);
 
 /**
  * Frees an event.
  * 
  * @param event The event to free.
  */
-void ecs_event_free(EcsEvent* event);
+ECS_EXPORT void ecs_event_free(EcsEvent* event);
 
 /**
  * Adds a function to an event.
@@ -90,7 +90,7 @@ void ecs_event_free(EcsEvent* event);
  * @param closure The function to add.
  * @return An id that can be used to remove the function if needed.
  */
-int ecs_event_add(EcsEvent* event, EcsClosure closure);
+ECS_EXPORT int ecs_event_add(EcsEvent* event, EcsClosure closure);
 
 /**
  * Removes a function from an event.
@@ -99,7 +99,7 @@ int ecs_event_add(EcsEvent* event, EcsClosure closure);
  * @param id The id that was returned when ecs_event_add was called.
  * @return true if the id was successfully removed, false otherwise.
  */
-bool ecs_event_remove(EcsEvent* event, int id);
+ECS_EXPORT bool ecs_event_remove(EcsEvent* event, int id);
 
 /**
  * Triggers an event.

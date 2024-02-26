@@ -12,7 +12,7 @@
  * 
  * @return The created EcsWorld.
  */
-EcsWorld ecs_world_init(void);
+ECS_EXPORT EcsWorld ecs_world_init(void);
 
 /**
  * @brief Frees all entities, components, and events associated with an EcsWorld, then frees the world.
@@ -21,7 +21,7 @@ EcsWorld ecs_world_init(void);
  * @return ECS_RESULT_SUCCESS on success,
  *         ECS_RESULT_INVALID_WORLD if the world didn't exist.
  */
-EcsResult ecs_world_free(EcsWorld world);
+ECS_EXPORT EcsResult ecs_world_free(EcsWorld world);
 
 /**
  * Creates an entity in the given world.
@@ -29,7 +29,7 @@ EcsResult ecs_world_free(EcsWorld world);
  * @param world The world to create the entity in.
  * @return The created entity.
  */
-EcsEntity ecs_create_entity(EcsWorld world);
+ECS_EXPORT EcsEntity ecs_create_entity(EcsWorld world);
 
 /**
  * Frees all components owned by an entity, then frees the entity.
@@ -43,7 +43,7 @@ EcsEntity ecs_create_entity(EcsWorld world);
  *         ECS_RESULT_INVALID_WORLD if the world connected to the entity no longer exists.
  *         ECS_RESULT_INVALID_ENTITY if the entity no longer exists in the world.
  */
-EcsResult ecs_entity_free(EcsEntity entity);
+ECS_EXPORT EcsResult ecs_entity_free(EcsEntity entity);
 
 /**
  * Enables a previously disabled entity.
@@ -54,7 +54,7 @@ EcsResult ecs_entity_free(EcsEntity entity);
  *         ECS_RESULT_INVALID_ENTITY if the entity no longer exists in the world.
  *         ECS_RESULT_INVALID_STATE if the entity is already enabled.
  */
-EcsResult ecs_entity_enable(EcsEntity entity);
+ECS_EXPORT EcsResult ecs_entity_enable(EcsEntity entity);
 
 /**
  * Disables an enabled entity.
@@ -65,16 +65,16 @@ EcsResult ecs_entity_enable(EcsEntity entity);
  *         ECS_RESULT_INVALID_ENTITY if the entity no longer exists in the world.
  *         ECS_RESULT_INVALID_STATE if the entity is already enabled.
  */
-EcsResult ecs_entity_disable(EcsEntity entity);
+ECS_EXPORT EcsResult ecs_entity_disable(EcsEntity entity);
 
 /// Determines if an entity is alive, but not necessarily enabled.
-bool ecs_entity_is_alive(EcsEntity entity);
+ECS_EXPORT bool ecs_entity_is_alive(EcsEntity entity);
 
 /// Determines if an entity is alive and enabled.
-bool ecs_entity_is_enabled(EcsEntity entity);
+ECS_EXPORT bool ecs_entity_is_enabled(EcsEntity entity);
 
 /// Gets all component types associated with an entity.
-ComponentEnum* ecs_entity_get_components(EcsEntity entity);
+ECS_EXPORT ComponentEnum* ecs_entity_get_components(EcsEntity entity);
 
 /**
  * Gets all component types owned by all entities on the specified world.
@@ -83,7 +83,7 @@ ComponentEnum* ecs_entity_get_components(EcsEntity entity);
  * @param count A pointer filled with the number of entities on the world.
  * @return An array of ComponentEnums where each index corresponds to an entity.
  */
-ComponentEnum* ecs_world_get_components(EcsWorld world, int* count);
+ECS_EXPORT ComponentEnum* ecs_world_get_components(EcsWorld world, int* count);
 
 /// A flag that determines if an entity is alive.
 extern ComponentFlag ecs_is_alive_flag;

@@ -21,16 +21,16 @@ typedef struct EcsEntitySetBuilder EcsEntitySetBuilder;
 typedef struct EcsEntitySet EcsEntitySet;
 
 /// Initializes a new EcsEntitySetBuilder.
-EcsEntitySetBuilder* ecs_entity_set_builder_init(void);
+ECS_EXPORT EcsEntitySetBuilder* ecs_entity_set_builder_init(void);
 
 /// Frees an EcsEntitySetBuilder.
-void ecs_entity_set_builder_free(EcsEntitySetBuilder* builder);
+ECS_EXPORT void ecs_entity_set_builder_free(EcsEntitySetBuilder* builder);
 
 /// Adds a component type that is required for an entity to be in any sets built from the EcsEntitySetBuilder.
-void ecs_entity_set_with(EcsEntitySetBuilder* builder, EcsComponentManager* component);
+ECS_EXPORT void ecs_entity_set_with(EcsEntitySetBuilder* builder, EcsComponentManager* component);
 
 /// Adds a component that cannot be owned by an entity to be in any sets built from the EcsEntitySetBuilder.
-void ecs_entity_set_without(EcsEntitySetBuilder* builder, EcsComponentManager* component);
+ECS_EXPORT void ecs_entity_set_without(EcsEntitySetBuilder* builder, EcsComponentManager* component);
 
 /**
  * Adds a set of components of which at least one is required for an entity to be in any sets
@@ -41,7 +41,7 @@ void ecs_entity_set_without(EcsEntitySetBuilder* builder, EcsComponentManager* c
  *                   the set.
  * @param count The number of components in the list.
 */
-void ecs_entity_set_with_any(EcsEntitySetBuilder* builder, EcsComponentManager** components, int count);
+ECS_EXPORT void ecs_entity_set_with_any(EcsEntitySetBuilder* builder, EcsComponentManager** components, int count);
 
 /**
  * Builds an EcsEntitySet using the constraints set on EcsEntitySetBuilder.
@@ -50,10 +50,10 @@ void ecs_entity_set_with_any(EcsEntitySetBuilder* builder, EcsComponentManager**
  * @param world The world to get the entities from.
  * @param free_builder true if the function should free the builder, false otherwise.
 */
-EcsEntitySet* ecs_entity_set_build(EcsEntitySetBuilder* builder, EcsWorld world, bool free_builder);
+ECS_EXPORT EcsEntitySet* ecs_entity_set_build(EcsEntitySetBuilder* builder, EcsWorld world, bool free_builder);
 
 /// Frees an EcsEntitySet.
-void ecs_entity_set_free(EcsEntitySet* set);
+ECS_EXPORT void ecs_entity_set_free(EcsEntitySet* set);
 
 /**
  * Gets an array of entities that satisfy the EcsEntitySet conditions.
@@ -62,6 +62,6 @@ void ecs_entity_set_free(EcsEntitySet* set);
  * @param count A pointer that is filled with the length of the entity array.
  * @return An array of entities that satisfy the entity set.
  */
-EcsEntity* ecs_entity_set_get_entities(EcsEntitySet* set, int* count);
+ECS_EXPORT EcsEntity* ecs_entity_set_get_entities(EcsEntitySet* set, int* count);
 
 #endif

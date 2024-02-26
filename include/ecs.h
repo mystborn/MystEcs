@@ -22,6 +22,6 @@
 #include "ecs_entity_set.h"
 
 /// Initializes the various systems needed to use ecs.
-void ecs_init(void);
+ECS_EXPORT void ecs_init(void);
 
 #endif //ECS_ECS_H

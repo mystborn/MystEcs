@@ -1,7 +1,7 @@
 #include <ecs_system.h>
 #include <ecs_world.h>
 
-void ecs_system_init(EcsSystem* system, EcsSystemType type, EcsSystemPreupdate preupdate, EcsSystemPostupdate postupdate) {
+ECS_EXPORT void ecs_system_init(EcsSystem* system, EcsSystemType type, EcsSystemPreupdate preupdate, EcsSystemPostupdate postupdate) {
     system->type = type;
     system->enabled = true;
     system->preupdate = preupdate;
@@ -27,19 +27,19 @@ static void ecs_entity_system_free(void* data, EcsSystem* system) {
     ecs_entity_set_free(entity_system->entities);
 }
 
-void ecs_system_free_resources(EcsSystem* system) {
+ECS_EXPORT void ecs_system_free_resources(EcsSystem* system) {
     ecs_event_trigger(system->dispose, void (*)(void*, EcsSystem*), system);
     ecs_event_free(system->dispose);
 }
 
-bool ecs_system_enable(EcsSystem* system) {
+ECS_EXPORT bool ecs_system_enable(EcsSystem* system) {
     if(system->enabled)
         return false;
     system->enabled = true;
     return true;
 }
 
-bool ecs_system_disable(EcsSystem* system) {
+ECS_EXPORT bool ecs_system_disable(EcsSystem* system) {
     if(!system->enabled)
         return false;
 
@@ -47,7 +47,7 @@ bool ecs_system_disable(EcsSystem* system) {
     return true;
 }
 
-void ecs_component_system_init(EcsComponentSystem* system, 
+ECS_EXPORT void ecs_component_system_init(EcsComponentSystem* system, 
                                EcsWorld world, 
                                EcsComponentManager* component_type, 
                                EcsSystemUpdateComponent update, 
@@ -60,7 +60,7 @@ void ecs_component_system_init(EcsComponentSystem* system,
     system->update = update;
 }
 
-void ecs_entity_system_init(EcsEntitySystem* system, 
+ECS_EXPORT void ecs_entity_system_init(EcsEntitySystem* system, 
                             EcsWorld world,
                             EcsEntitySetBuilder* builder,
                             bool free_builder,
@@ -75,7 +75,7 @@ void ecs_entity_system_init(EcsEntitySystem* system,
     ecs_event_add(system->base.dispose, ecs_closure(NULL, ecs_entity_system_free));
 }
 
-void ecs_action_system_init(EcsActionSystem* system, 
+ECS_EXPORT void ecs_action_system_init(EcsActionSystem* system, 
                             EcsSystemUpdateAction update, 
                             EcsSystemPreupdate preupdate, 
                             EcsSystemPostupdate postupdate)
@@ -84,7 +84,7 @@ void ecs_action_system_init(EcsActionSystem* system,
     system->update = update;
 }
 
-void ecs_sequential_system_init(EcsSequentialSystem* system, 
+ECS_EXPORT void ecs_sequential_system_init(EcsSequentialSystem* system, 
                                 EcsSystemPreupdate preupdate, 
                                 EcsSystemPostupdate postupdate, 
                                 bool free_children,
@@ -105,7 +105,7 @@ void ecs_sequential_system_init(EcsSequentialSystem* system,
     ecs_event_add(system->base.dispose, ecs_closure(NULL, ecs_sequential_system_free));
 }
 
-void ecs_sequential_system_init_array(EcsSequentialSystem* system, 
+ECS_EXPORT void ecs_sequential_system_init_array(EcsSequentialSystem* system, 
                                       EcsSystemPreupdate preupdate, 
                                       EcsSystemPostupdate postupdate,
                                       bool free_children,
@@ -120,7 +120,7 @@ void ecs_sequential_system_init_array(EcsSequentialSystem* system,
     ecs_event_add(system->base.dispose, ecs_closure(NULL, ecs_sequential_system_free));
 }
 
-void ecs_sequential_system_init_list(EcsSequentialSystem* system, 
+ECS_EXPORT void ecs_sequential_system_init_list(EcsSequentialSystem* system, 
                                      EcsSystemPreupdate preupdate, 
                                      EcsSystemPostupdate postupdate,
                                      bool free_children,
@@ -137,7 +137,7 @@ void ecs_sequential_system_init_list(EcsSequentialSystem* system,
     ecs_event_add(system->base.dispose, ecs_closure(NULL, ecs_sequential_system_free));
 }
 
-void ecs_system_update(EcsSystem* system, float delta_time) {
+ECS_EXPORT void ecs_system_update(EcsSystem* system, float delta_time) {
     if(!system->enabled)
         return;
 

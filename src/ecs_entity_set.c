@@ -44,7 +44,7 @@ struct EcsEntitySet {
     EcsWorld world;
 };
 
-EcsEntitySetBuilder* ecs_entity_set_builder_init(void) {
+ECS_EXPORT EcsEntitySetBuilder* ecs_entity_set_builder_init(void) {
     EcsEntitySetBuilder* builder = ecs_malloc(sizeof(EcsEntitySetBuilder));
     builder->with_components = NULL;
     builder->without_components = NULL;
@@ -60,7 +60,7 @@ EcsEntitySetBuilder* ecs_entity_set_builder_init(void) {
     return builder;
 }
 
-void ecs_entity_set_builder_free(EcsEntitySetBuilder* builder) {
+ECS_EXPORT void ecs_entity_set_builder_free(EcsEntitySetBuilder* builder) {
     ecs_free(builder->with_components);
     ecs_free(builder->without_components);
 
@@ -77,7 +77,7 @@ void ecs_entity_set_builder_free(EcsEntitySetBuilder* builder) {
     ecs_free(builder);
 }
 
-void ecs_entity_set_with(EcsEntitySetBuilder* builder, EcsComponentManager* manager) {
+ECS_EXPORT void ecs_entity_set_with(EcsEntitySetBuilder* builder, EcsComponentManager* manager) {
     ECS_ARRAY_RESIZE(
         builder->with_components,
         builder->with_capacity,
@@ -88,7 +88,7 @@ void ecs_entity_set_with(EcsEntitySetBuilder* builder, EcsComponentManager* mana
     ecs_component_enum_set_flag(&builder->with, manager->flag, true);
 }
 
-void ecs_entity_set_without(EcsEntitySetBuilder* builder, EcsComponentManager* manager) {
+ECS_EXPORT void ecs_entity_set_without(EcsEntitySetBuilder* builder, EcsComponentManager* manager) {
     ECS_ARRAY_RESIZE(
         builder->without_components,
         builder->without_capacity,
@@ -99,7 +99,7 @@ void ecs_entity_set_without(EcsEntitySetBuilder* builder, EcsComponentManager* m
     ecs_component_enum_set_flag(&builder->without, manager->flag, true);
 }
 
-void ecs_entity_set_with_any(EcsEntitySetBuilder* builder, EcsComponentManager** components, int count) {
+ECS_EXPORT void ecs_entity_set_with_any(EcsEntitySetBuilder* builder, EcsComponentManager** components, int count) {
     ECS_ARRAY_RESIZE(
         builder->with_any_components,
         builder->with_any_capacity,
@@ -209,7 +209,7 @@ static void entity_set_component_removed_remove(void* data, EcsComponentRemovedM
     entity_set_remove((EcsEntitySet*)data, message->entity);
 }
 
-EcsEntitySet* ecs_entity_set_build(EcsEntitySetBuilder* builder, EcsWorld world, bool free_builder) {
+ECS_EXPORT EcsEntitySet* ecs_entity_set_build(EcsEntitySetBuilder* builder, EcsWorld world, bool free_builder) {
     EcsEntitySet* set = ecs_malloc(sizeof(EcsEntitySet));
 
     set->with_count = builder->with_count;
@@ -332,7 +332,7 @@ EcsEntitySet* ecs_entity_set_build(EcsEntitySetBuilder* builder, EcsWorld world,
     return set;
 }
 
-void ecs_entity_set_free(EcsEntitySet* set) {
+ECS_EXPORT void ecs_entity_set_free(EcsEntitySet* set) {
     for(int i = 0; i < set->with_count; i++) {
         ecs_event_unsubscribe(set->world, 
                               ecs_component_get_added_event(set->with_components[i]), 
@@ -392,7 +392,7 @@ void ecs_entity_set_free(EcsEntitySet* set) {
     ecs_free(set);
 }
 
-EcsEntity* ecs_entity_set_get_entities(EcsEntitySet* set, int* count) {
+ECS_EXPORT EcsEntity* ecs_entity_set_get_entities(EcsEntitySet* set, int* count) {
     *count = set->last_index + 1;
     return set->entities;
 }

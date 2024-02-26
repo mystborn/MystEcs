@@ -46,17 +46,17 @@ typedef struct EcsComponentManager {
  *
  * @return A new EcsComponentManager
  */
-EcsComponentManager* ecs_component_define(int component_size, EcsComponentConstructor constructor, EcsComponentDestructor destructor);
+ECS_EXPORT EcsComponentManager* ecs_component_define(int component_size, EcsComponentConstructor constructor, EcsComponentDestructor destructor);
 
 /// Frees all components owned by a EcsComponentManager, then frees the manager.
-void ecs_component_free(EcsComponentManager* manager);
+ECS_EXPORT void ecs_component_free(EcsComponentManager* manager);
 
 /**
  * Creates and associates a component with an entity.
  *
  * @return A pointer to the new component. This will be one level of indirection higher than the component type.
  */
-void* ecs_entity_set(EcsEntity entity, EcsComponentManager* manager);
+ECS_EXPORT void* ecs_entity_set(EcsEntity entity, EcsComponentManager* manager);
 
 /**
  * Associates a component owned by a reference entity with another entity.
@@ -69,7 +69,7 @@ void* ecs_entity_set(EcsEntity entity, EcsComponentManager* manager);
  *         ECS_RESULT_DIFFERENT_WORLD if the entities exist in different worlds,
  *         ECS_RESULT_INVALID_ENTITY if the reference entity doesn't have the component.
  */
-EcsResult ecs_entity_set_same_as(EcsEntity entity, EcsEntity reference, EcsComponentManager* manager);
+ECS_EXPORT EcsResult ecs_entity_set_same_as(EcsEntity entity, EcsEntity reference, EcsComponentManager* manager);
 
 /**
  * Removes a component from an entity.
@@ -77,7 +77,7 @@ EcsResult ecs_entity_set_same_as(EcsEntity entity, EcsEntity reference, EcsCompo
  * @return ECS_RESULT_SUCCESS on success,
  *         ECS_RESULT_INVALID_ENTITY if the entity doesn't have the component.
  */
-EcsResult ecs_entity_remove(EcsEntity entity, EcsComponentManager* manager);
+ECS_EXPORT EcsResult ecs_entity_remove(EcsEntity entity, EcsComponentManager* manager);
 
 /**
  * Get a component associated with an entity.
@@ -89,10 +89,10 @@ EcsResult ecs_entity_remove(EcsEntity entity, EcsComponentManager* manager);
  * @return ECS_RESULT_SUCCESS on success,
  *         ECS_RESULT_INVALID_ENTITY if the entity doesn't have the component
  */
-EcsResult ecs_entity_get(EcsEntity entity, EcsComponentManager* manager, void** component);
+ECS_EXPORT EcsResult ecs_entity_get(EcsEntity entity, EcsComponentManager* manager, void** component);
 
 /// Determines if a component is associated with an entity.
-bool ecs_entity_has(EcsEntity entity, EcsComponentManager*);
+ECS_EXPORT bool ecs_entity_has(EcsEntity entity, EcsComponentManager*);
 
 /**
  * Gets all created components, regardless if they're enabled or not.
@@ -102,7 +102,7 @@ bool ecs_entity_has(EcsEntity entity, EcsComponentManager*);
  * @param count An int pointer that is filled with the number of components.
  * @return An array that holds the components. Do not free this array.
  */
-void* ecs_component_get_all(EcsWorld world, EcsComponentManager* manager, int* count);
+ECS_EXPORT void* ecs_component_get_all(EcsWorld world, EcsComponentManager* manager, int* count);
 
 /// Gets an EcsEventManager that is triggered when the specified component type is added to an entity.
 static inline EcsEventManager* ecs_component_get_added_event(EcsComponentManager* manager) {

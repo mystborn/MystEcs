@@ -174,8 +174,11 @@ ECS_EXPORT void* ecs_entity_set(EcsEntity entity, EcsComponentManager* manager) 
         if(manager->destructor != NULL)
             manager->destructor(result);
 
-        if(manager->constructor != NULL)
+        if(manager->constructor != NULL) {
             manager->constructor(result);
+        } else {
+            memset(result, 0, pool->component_size);
+        }
 
         return result;
     }
@@ -195,8 +198,11 @@ ECS_EXPORT void* ecs_entity_set(EcsEntity entity, EcsComponentManager* manager) 
     ecs_component_enum_set_flag(components, manager->flag, true);
     ECS_COMPONENT_ADDED(entity, components, manager, result);
 
-    if(manager->constructor != NULL)
+    if(manager->constructor != NULL) {
         manager->constructor(result);
+    } else {
+        memset(result, 0, pool->component_size);
+    }
 
     return result;
 

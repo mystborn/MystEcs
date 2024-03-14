@@ -3,6 +3,7 @@
 
 ECS_EXPORT void ecs_system_init(EcsSystem* system, EcsSystemType type, EcsSystemPreupdate preupdate, EcsSystemPostupdate postupdate) {
     system->type = type;
+    system->ctx = NULL;
     system->enabled = true;
     system->preupdate = preupdate;
     system->postupdate = postupdate;

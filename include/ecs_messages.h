@@ -3,8 +3,8 @@
 
 // This file defines various messages used by events.
 
-#include "ecs_component.h"
 #include "ecs_common.h"
+#include "ecs_component.h"
 #include "ecs_entity.h"
 #include "ecs_event.h"
 
@@ -68,19 +68,19 @@ typedef struct EcsWorldDisposedMessage {
 } EcsWorldDisposedMessage;
 
 /// Event manager that is triggered when an entity is created.
-extern EcsEventManager* ecs_entity_created;
+ECS_EXPORT extern EcsEventManager* ecs_entity_created;
 
 /// Event manager that is triggered when an entity is freed.
-extern EcsEventManager* ecs_entity_disposed;
+ECS_EXPORT extern EcsEventManager* ecs_entity_disposed;
 
 /// Event manager that is triggered when an entity is enabled.
-extern EcsEventManager* ecs_entity_enabled;
+ECS_EXPORT extern EcsEventManager* ecs_entity_enabled;
 
 /// Event manager that is triggered when an entity is disabled.
-extern EcsEventManager* ecs_entity_disabled;
+ECS_EXPORT extern EcsEventManager* ecs_entity_disabled;
 
 /// An event that is triggered when a world is freed.
-extern EcsEvent* ecs_world_disposed;
+ECS_EXPORT extern EcsEvent* ecs_world_disposed;
 
 
 #endif

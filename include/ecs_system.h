@@ -102,6 +102,7 @@ struct EcsSystem {
     EcsSystemPostupdate postupdate;
     EcsEvent* dispose;
     EcsSystemType type;
+    void* ctx;
     bool enabled;
 };
 
@@ -283,6 +284,32 @@ ECS_EXPORT void ecs_sequential_system_init_list(
     bool free_children,
     int count,
     va_list list);
+
+
+/**
+ * Gets the context of the system.
+ * 
+ * @param system The system to get the context from.
+ * @return void*
+ */
+static inline void* ecs_system_get_context(EcsSystem* system) {
+    return system->ctx;
+}
+
+/**
+ * Sets the context of a system.
+ * 
+ * @details For complex systems with lots of variables, a subtype is usually introduced
+ *          that contains all of the necessary fields. However, many systems only need
+ *          one extra variable to function (perhaps a renderer or a collision world),
+ *          and for those cases a context variable can be used.
+ * 
+ * @param system The system to set the context of.
+ * @param ctx The context value.
+ */
+static inline void ecs_system_set_context(EcsSystem* system, void* ctx) {
+    system->ctx = ctx;
+}
 
 /**
  * Updates a system.

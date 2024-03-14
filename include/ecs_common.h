@@ -17,9 +17,10 @@
     #endif
 #endif
 
+#include <soren_std.h>
+
 #include <stdbool.h>
 #include <stddef.h>
-#include "ecs_array.h"
 
 // Originally these were defined to use the SDL version of each function if the library was
 // available, however I ran into a bug with SDL_malloc or SDL_realloc that was overwriting valid
@@ -35,12 +36,19 @@
 
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef ecs_malloc
+
 #define ecs_malloc malloc
 #define ecs_realloc realloc
 #define ecs_free free
 #define ecs_memmove memmove
 #define ecs_memcpy memcpy
 #define ecs_memset memset
+
+#endif
+
+#include "ecs_array.h"
 
 /// A named constant that can be used to identify function success or cause of failure.
 typedef enum EcsResult {

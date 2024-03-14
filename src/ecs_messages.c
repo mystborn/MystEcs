@@ -1,11 +1,11 @@
 #include "ecs_messages.h"
 #include "ecs_init.h"
 
-EcsEventManager* ecs_entity_created;
-EcsEventManager* ecs_entity_disposed;
-EcsEventManager* ecs_entity_enabled;
-EcsEventManager* ecs_entity_disabled;
-EcsEvent* ecs_world_disposed;
+ECS_EXPORT EcsEventManager* ecs_entity_created;
+ECS_EXPORT EcsEventManager* ecs_entity_disposed;
+ECS_EXPORT EcsEventManager* ecs_entity_enabled;
+ECS_EXPORT EcsEventManager* ecs_entity_disabled;
+ECS_EXPORT EcsEvent* ecs_world_disposed;
 
 void ecs_messages_init(void) {
     // This has to be initialized first, because EcsEventManagers add a function to it.

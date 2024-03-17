@@ -162,7 +162,28 @@ static EcsComponentPool* ecs_component_pool_get_or_create(EcsComponentManager* m
                           &(EcsComponentAddedMessage){ entity, manager, result }); \
     }
 
-ECS_EXPORT void* ecs_entity_set(EcsEntity entity, EcsComponentManager* manager) {
+#define ECS_COMPONENT_REMOVED(entity, components, manager, result) \
+    if (manager->removed != NULL && ecs_component_enum_get_flag(components, ecs_is_enabled_flag)) {\
+        ecs_event_publish( \
+            entity.world, \
+            manager->removed, \
+            void (*)(void*, EcsComponentRemovedMessage*), \
+            &(EcsComponentRemovedMessage){ entity, manager, result }); \
+    }
+
+static void ecs_entity_set_component_memory(void* dest, void* src, EcsComponentManager* component_type) {
+    if (src) {
+        memcpy(dest, src, component_type->component_size);
+    } else {
+        memset(dest, 0, component_type->component_size);
+    }
+
+    if (component_type->constructor != NULL) {
+        component_type->constructor(dest);
+    }
+}
+
+ECS_EXPORT void* ecs_entity_set(EcsEntity entity, EcsComponentManager* manager, void* value) {
     ComponentEnum* components;
     void* result;
     EcsComponentPool* pool = ecs_component_pool_get_or_create(manager, entity.world);
@@ -174,16 +195,14 @@ ECS_EXPORT void* ecs_entity_set(EcsEntity entity, EcsComponentManager* manager) 
         result = pool->components + (*index * pool->component_size);
 
         components = ecs_entity_get_components(entity);
-        ECS_COMPONENT_ADDED(entity, components, manager, result);
+        ECS_COMPONENT_REMOVED(entity, components, manager, result);
 
         if(manager->destructor != NULL)
             manager->destructor(result);
 
-        if(manager->constructor != NULL) {
-            manager->constructor(result);
-        } else {
-            memset(result, 0, pool->component_size);
-        }
+        ecs_entity_set_component_memory(result, value, manager);
+
+        ECS_COMPONENT_ADDED(entity, components, manager, result);
 
         return result;
     }
@@ -201,13 +220,10 @@ ECS_EXPORT void* ecs_entity_set(EcsEntity entity, EcsComponentManager* manager) 
 
     components = ecs_entity_get_components(entity);
     ecs_component_enum_set_flag(components, manager->flag, true);
-    ECS_COMPONENT_ADDED(entity, components, manager, result);
 
-    if(manager->constructor != NULL) {
-        manager->constructor(result);
-    } else {
-        memset(result, 0, pool->component_size);
-    }
+    ecs_entity_set_component_memory(result, value, manager);
+
+    ECS_COMPONENT_ADDED(entity, components, manager, result);
 
     return result;
 
@@ -256,16 +272,13 @@ ECS_EXPORT EcsResult ecs_entity_remove(EcsEntity entity, EcsComponentManager* ma
 
     ComponentEnum* components = ecs_entity_get_components(entity);
     ecs_component_enum_set_flag(components, manager->flag, false);
-    if(manager->removed != NULL && ecs_component_enum_get_flag(components, ecs_is_enabled_flag)) {
-        void* component = pool->components + pool->component_size * *index;
-        EcsComponentRemovedMessage message = { entity, manager, component };
-        ecs_event_publish(entity.world, manager->removed, void (*)(void*, EcsComponentRemovedMessage*), &message);
-    }
+    void* component = pool->components + pool->component_size * *index;
+    ECS_COMPONENT_REMOVED(entity, components, manager, component);
 
     ComponentLink* link = pool->links + *index;
     if(--link->references == 0) {
         if(manager->destructor != NULL)
-            manager->destructor(pool->components + (pool->component_size * *index));
+            manager->destructor(component);
 
         ComponentLink last_link = pool->links[pool->last_component_index];
         pool->links[*index] = last_link;

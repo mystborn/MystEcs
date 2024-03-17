@@ -49,8 +49,8 @@ void component_restart(void) {
 START_TEST(component_allocates_correctly) {
     EcsEntity entity1 = ecs_create_entity(world);
     EcsEntity entity2 = ecs_create_entity(world);
-    int* number1 = ecs_entity_set(entity1, number_component);
-    int* number2 = ecs_entity_set(entity2, number_component);
+    int* number1 = ecs_entity_set(entity1, number_component, NULL);
+    int* number2 = ecs_entity_set(entity2, number_component, NULL);
     ptrdiff_t offset = number2 - number1;
     ck_assert_msg(offset == 1, "Components are not allocated next to each other.");
     ck_assert(ecs_entity_remove(entity1, number_component) == ECS_RESULT_SUCCESS);
@@ -63,8 +63,8 @@ END_TEST
 START_TEST(component_calls_constructor_and_destructor) {
     EcsEntity entity1 = ecs_create_entity(world);
     EcsEntity entity2 = ecs_create_entity(world);
-    int** ptr1 = ecs_entity_set(entity1, number_pointer_component);
-    int** ptr2 = ecs_entity_set(entity2, number_pointer_component);
+    int** ptr1 = ecs_entity_set(entity1, number_pointer_component, NULL);
+    int** ptr2 = ecs_entity_set(entity2, number_pointer_component, NULL);
     ck_assert_msg(numbers_created == 2, "Did not call constructor");
     ecs_entity_remove(entity1, number_pointer_component);
     ecs_entity_remove(entity2, number_pointer_component);
@@ -76,7 +76,7 @@ END_TEST
 
 START_TEST(component_exists_valid_component) {
     EcsEntity entity1 = ecs_create_entity(world);
-    ecs_entity_set(entity1, number_component);
+    ecs_entity_set(entity1, number_component, NULL);
     ck_assert_msg(ecs_entity_has(entity1, number_component), "Valid component does not exist");
     ecs_entity_free(entity1);
 
@@ -94,7 +94,7 @@ START_TEST(component_set_sets_flag) {
     EcsEntity entity1 = ecs_create_entity(world);
     ComponentEnum* components = ecs_entity_get_components(entity1);
     ComponentFlag flag = number_component->flag;
-    ecs_entity_set(entity1, number_component);
+    ecs_entity_set(entity1, number_component, NULL);
     ck_assert_msg(ecs_component_enum_get_flag(components, flag), "Component set did not set flag");
     ecs_entity_remove(entity1, number_component);
     ck_assert_msg(!ecs_component_enum_get_flag(components, flag), "Component remove did not remove flag");
@@ -104,9 +104,9 @@ END_TEST
 
 START_TEST(component_get_valid_component) {
     EcsEntity entity1 = ecs_create_entity(world);
-    int** ptr1 = ecs_entity_set(entity1, number_pointer_component);
+    int** ptr1 = ecs_entity_set(entity1, number_pointer_component, NULL);
     int** ptr2 = NULL;
-    ck_assert_msg(ecs_entity_get(entity1, number_pointer_component, &ptr2) == ECS_RESULT_SUCCESS, "Failed to get valid component");
+    ck_assert_msg(ecs_entity_get(entity1, number_pointer_component, (void**)&ptr2) == ECS_RESULT_SUCCESS, "Failed to get valid component");
     ck_assert_msg(*ptr1 == *ptr2, "Component get returned wrong value");
     ecs_entity_free(entity1);
 }
@@ -115,14 +115,14 @@ END_TEST
 START_TEST(component_get_invalid_component) {
     EcsEntity entity1 = ecs_create_entity(world);
     int** value;
-    ck_assert_msg(ecs_entity_get(entity1, number_component, &value) == ECS_RESULT_INVALID_ENTITY, "Got component for invalid entity");
+    ck_assert_msg(ecs_entity_get(entity1, number_component, (void**)&value) == ECS_RESULT_INVALID_ENTITY, "Got component for invalid entity");
     ecs_entity_free(entity1);
 }
 END_TEST
 
 START_TEST(entity_free_removes_components) {
     EcsEntity entity1 = ecs_create_entity(world);
-    ecs_entity_set(entity1, number_pointer_component);
+    ecs_entity_set(entity1, number_pointer_component, NULL);
     ecs_entity_free(entity1);
     ck_assert_msg((numbers_freed == 1), "Did not call destructor on entity free");
 }
@@ -131,7 +131,7 @@ END_TEST
 START_TEST(component_free_destroys_all_components) {
     EcsComponentManager* manager = ecs_component_define(sizeof(int*), number_pointer_constructor, number_pointer_destructor);
     EcsEntity entity1 = ecs_create_entity(world);
-    int** ptr1 = ecs_entity_set(entity1, manager);
+    int** ptr1 = ecs_entity_set(entity1, manager, NULL);
     ck_assert(numbers_created == 1);
     ecs_component_free(manager);
     ck_assert(numbers_freed == 1);
@@ -143,9 +143,10 @@ START_TEST(component_get_all) {
     EcsEntity entity1 = ecs_create_entity(world);
     EcsEntity entity2 = ecs_create_entity(world);
     EcsEntity entity3 = ecs_create_entity(world);
-    *(int*)ecs_entity_set(entity1, number_component) = 0;
-    *(int*)ecs_entity_set(entity2, number_component) = 1;
-    *(int*)ecs_entity_set(entity3, number_component) = 2;
+    int values[3] = { 0, 1, 2 };
+    ecs_entity_set(entity1, number_component, &values[0]);
+    ecs_entity_set(entity2, number_component, &values[1]);
+    ecs_entity_set(entity3, number_component, &values[2]);
     int count;
     int* ints = ecs_component_get_all(world, number_component, &count);
     ck_assert(count == 3);

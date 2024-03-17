@@ -58,7 +58,7 @@ START_TEST(set_with_component_returns_all_entities_with_component) {
     ck_assert_msg(set_count == 0, "Set filled with invalid entities");
 
     for(int i = 0; i < count; i++)
-        ecs_entity_set(entities[i], bool_component);
+        ecs_entity_set(entities[i], bool_component, NULL);
 
     EcsEntity* result =  ecs_entity_set_get_entities(set, &set_count);
     ck_assert_msg(set_count == count, "Set missing valid entities");
@@ -97,7 +97,7 @@ START_TEST(set_without_component_returns_all_entities_without_component) {
         ck_assert(!ecs_entity_has(result[i], int_component));
 
     for(int i = 0; i < count; i++)
-        ecs_entity_set(entities[i], int_component);
+        ecs_entity_set(entities[i], int_component, NULL);
     result = ecs_entity_set_get_entities(set, &set_count);
     ck_assert_msg(set_count == 0, "Set filled with invalid entities");
 

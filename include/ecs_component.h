@@ -54,9 +54,15 @@ ECS_EXPORT void ecs_component_free(EcsComponentManager* manager);
 /**
  * Creates and associates a component with an entity.
  *
+ * @param entity The entity to set the component on.
+ * @param manager The type of the component to set.
+ * @param component The value of the component to set. This can be NULL. If so, the memory for the component will
+ *                  be zero-initialized. Otherwise, this should be one level of indirection higher than the
+ *                  actual component type. (i.e. if the component type is int, then this value should be int*).
+ * 
  * @return A pointer to the new component. This will be one level of indirection higher than the component type.
  */
-ECS_EXPORT void* ecs_entity_set(EcsEntity entity, EcsComponentManager* manager);
+ECS_EXPORT void* ecs_entity_set(EcsEntity entity, EcsComponentManager* manager, void* component);
 
 /**
  * Associates a component owned by a reference entity with another entity.

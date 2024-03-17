@@ -100,10 +100,7 @@ void ecs_recorder_execute(EcsRecorder* recorder) {
                 break;
             case COMMAND_SET:
                 struct EcsCommandEntitySet* set_command = (struct EcsCommandEntitySet*)recorder->buffer;
-                void* result = ecs_entity_set(ecs_recorder_get_entity(recorder, set_command->entity_offset), set_command->component);
-                if (set_command->value != NULL) {
-                    memcpy(result, set_command->value, set_command->component->component_size);
-                }
+                ecs_entity_set(ecs_recorder_get_entity(recorder, set_command->entity_offset), set_command->component, set_command->value);
                 index += sizeof(*set_command);
                 break;
             case COMMAND_SET_SAME_AS:

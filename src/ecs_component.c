@@ -29,10 +29,15 @@ typedef struct EcsComponentPool {
     int entity_disposed_id;
 } EcsComponentPool;
 
-// Frees a previously create EcsComponentPool, calling the destructor on each active component if defined.
-// flag: The flag of the component that is being freed.
-//       If the world is being destroyed, this should be set to COMPONENT_FLAG_INVALID_MASK
-//       As all of the components will be cleared anyways.
+/**
+ * Frees a previously create EcsComponentPool, calling the destructor on each active component if defined.
+ * 
+ * @param pool The component pool to free.
+ * @param destructor The destructor to run for each of the components in the pool. Can be NULL.
+ * @param flag The flag of the component that is being freed.
+ *             If the world is being destroyed, this should be set to COMPONENT_FLAG_INVALID_MASK
+ *             As all of the components will be cleared anyways.
+ */
 static void ecs_component_pool_free(EcsComponentPool* pool, EcsComponentDestructor destructor, ComponentFlag flag) {
     if(pool->components != NULL) {
         if(pool->mapping != NULL) {

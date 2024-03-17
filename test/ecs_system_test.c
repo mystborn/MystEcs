@@ -1,6 +1,8 @@
 #include "check.h"
 #include "ecs.h"
 
+#include <stdio.h>
+
 EcsComponentManager* bool_component;
 EcsComponentManager* int_component;
 
@@ -42,19 +44,19 @@ void system_start(void) {
 START_TEST(action_enabled_update_calls) {
     EcsActionSystem system;
     ecs_action_system_init(&system, action_update, NULL, NULL);
-    ecs_system_update(&system, 0);
+    ecs_system_update((EcsSystem*)&system, 0);
     ck_assert_msg(action_count == 1, "Action system did not update when enabled");
-    ecs_system_free_resources(&system);
+    ecs_system_free_resources((EcsSystem*)&system);
 }
 END_TEST
 
 START_TEST(action_disabled_update_not_calls) {
     EcsActionSystem system;
     ecs_action_system_init(&system, action_update, NULL, NULL);
-    ecs_system_disable(&system);
-    ecs_system_update(&system, 0);
+    ecs_system_disable((EcsSystem*)&system);
+    ecs_system_update((EcsSystem*)&system, 0);
     ck_assert_msg(action_count == 0, "Action system updated when disabled");
-    ecs_system_free_resources(&system);
+    ecs_system_free_resources((EcsSystem*)&system);
 }
 END_TEST
 
@@ -66,12 +68,12 @@ START_TEST(sequential_enabled_update_calls_enabled_all) {
     ecs_action_system_init(&a2, action_update, NULL, NULL);
 
     ecs_sequential_system_init(&system, NULL, NULL, false, 2, &a1, &a2);
-    ecs_system_update(&system, 0);
+    ecs_system_update((EcsSystem*)&system, 0);
 
     ck_assert_msg(action_count == 2, "Sequential system failed to call all children");
-    ecs_system_free_resources(&a1);
-    ecs_system_free_resources(&a2);
-    ecs_system_free_resources(&system);
+    ecs_system_free_resources((EcsSystem*)&a1);
+    ecs_system_free_resources((EcsSystem*)&a2);
+    ecs_system_free_resources((EcsSystem*)&system);
 }
 END_TEST
 
@@ -81,15 +83,15 @@ START_TEST(sequential_enabled_update_calls_enabled_some) {
 
     ecs_action_system_init(&a1, action_update, NULL, NULL);
     ecs_action_system_init(&a2, action_update, NULL, NULL);
-    ecs_system_disable(&a1);
+    ecs_system_disable((EcsSystem*)&a1);
 
     ecs_sequential_system_init(&system, NULL, NULL, false, 2, &a1, &a2);
-    ecs_system_update(&system, 0);
+    ecs_system_update((EcsSystem*)&system, 0);
 
     ck_assert_msg(action_count == 1, "Sequential system failed to call all children");
-    ecs_system_free_resources(&a1);
-    ecs_system_free_resources(&a2);
-    ecs_system_free_resources(&system);
+    ecs_system_free_resources((EcsSystem*)&a1);
+    ecs_system_free_resources((EcsSystem*)&a2);
+    ecs_system_free_resources((EcsSystem*)&system);
 }
 END_TEST
 
@@ -101,18 +103,19 @@ START_TEST(sequential_disabled_update_calls_none) {
     ecs_action_system_init(&a2, action_update, NULL, NULL);
 
     ecs_sequential_system_init(&system, NULL, NULL, false, 2, &a1, &a2);
-    ecs_system_disable(&system);
+    ecs_system_disable((EcsSystem*)&system);
 
-    ecs_system_update(&system, 0);
+    ecs_system_update((EcsSystem*)&system, 0);
 
     ck_assert_msg(action_count == 0, "Sequential system updated when disabled");
-    ecs_system_free_resources(&a1);
-    ecs_system_free_resources(&a2);
-    ecs_system_free_resources(&system);
+    ecs_system_free_resources((EcsSystem*)&a1);
+    ecs_system_free_resources((EcsSystem*)&a2);
+    ecs_system_free_resources((EcsSystem*)&system);
 }
 END_TEST
 
 START_TEST(component_enabled_update_calls) {
+    puts("moo");
     EcsWorld world = ecs_world_init();
     EcsEntity entity1 = ecs_create_entity(world);
     EcsEntity entity2 = ecs_create_entity(world);
@@ -122,9 +125,9 @@ START_TEST(component_enabled_update_calls) {
     bool* c3 = ecs_entity_set(entity3, bool_component);
     EcsComponentSystem system;
     ecs_component_system_init(&system, world, bool_component, component_update, NULL, NULL);
-    ecs_system_update(&system, 0);
+    ecs_system_update((EcsSystem*)&system, 0);
     ck_assert_msg(*c1 && *c2 && *c3, "Component system failed to update for all components");
-    ecs_system_free_resources(&system);
+    ecs_system_free_resources((EcsSystem*)&system);
     ecs_world_free(world);
 }
 END_TEST
@@ -147,7 +150,26 @@ START_TEST(component_disabled_update_not_calls) {
 }
 END_TEST
 
+// START_TEST(component_ignores_disabled_entities) {
+//     puts("moo 1.75");
+//     EcsWorld world = ecs_world_init();
+//     EcsEntity entity = ecs_create_entity(world);
+//     bool* component = ecs_entity_set(entity, bool_component);
+//     EcsComponentSystem system;
+//     ecs_component_system_init(&system, world, bool_component, component_update, NULL, NULL);
+//     ecs_system_update((EcsSystem*)&system, 0);
+//     ck_assert_msg(*component, "Component system failed to update a component");
+//     *component = false;
+//     ecs_entity_disable(entity);
+//     ecs_system_update((EcsSystem*)&system, 0);
+//     ck_assert_msg(!(*component), "Component system updated entity that was disabled");
+//     ecs_system_free_resources((EcsSystem*)&system);
+//     ecs_world_free(world);
+// }
+// END_TEST
+
 START_TEST(entity_enabled_update_all) {
+    puts("moo 2");
     EcsEntitySetBuilder* builder = ecs_entity_set_builder_init();
     ecs_entity_set_with(builder, bool_component);
     ecs_entity_set_without(builder, int_component);
@@ -160,7 +182,7 @@ START_TEST(entity_enabled_update_all) {
     bool* c2 = ecs_entity_set(entity2, bool_component);
     bool* c3 = ecs_entity_set(entity3, bool_component);
 
-    EcsEntitySystem system;
+    EcsEntitySystem system = (EcsEntitySystem){0};
     ecs_entity_system_init(&system, world, builder, true, entity_update, NULL, NULL);
 
     ecs_system_update(&system, 0);
@@ -171,6 +193,7 @@ START_TEST(entity_enabled_update_all) {
 END_TEST
 
 START_TEST(entity_enabled_update_some) {
+    puts("moo 3");
     EcsEntitySetBuilder* builder = ecs_entity_set_builder_init();
     ecs_entity_set_with(builder, bool_component);
     ecs_entity_set_without(builder, int_component);
@@ -235,6 +258,7 @@ int main(void) {
     tcase_add_test(tc_system, sequential_disabled_update_calls_none);
     tcase_add_test(tc_system, component_enabled_update_calls);
     tcase_add_test(tc_system, component_disabled_update_not_calls);
+    // tcase_add_test(tc_system, component_ignores_disabled_entities);
     tcase_add_test(tc_system, entity_enabled_update_all);
     tcase_add_test(tc_system, entity_enabled_update_some);
     tcase_add_test(tc_system, entity_disabled_update_none);

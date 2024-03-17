@@ -69,6 +69,7 @@ ECS_EXPORT void ecs_entity_system_init(EcsEntitySystem* system,
                             EcsSystemPreupdate preupdate, 
                             EcsSystemPostupdate postupdate)
 {
+    puts("init entity system");
     ecs_system_init(&system->base, ECS_SYSTEM_TYPE_ENTITY, preupdate, postupdate);
     system->world = world;
     system->entities = ecs_entity_set_build(builder, world, free_builder);

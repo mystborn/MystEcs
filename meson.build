@@ -11,6 +11,8 @@ if check_location != '' and check_location != 'true'
     test_inc = include_directories(include_files + [check_location + '/include'])
 endif
 
+args = ['/DECS_BUILD']
+
 subdir('src')
 
 # Needed because visual studio fails to link with
@@ -23,22 +25,26 @@ if build_machine.system() == 'windows'
         lib_sources,
         include_directories: inc,
         name_suffix: 'lib',
-        name_prefix: ''
+        name_prefix: '',
+        c_args: args
     )
 
     myst_ecs_shared = shared_library('myst_ecs',
         lib_sources,
-        include_directories: inc
+        include_directories: inc,
+        c_args: args
     )
 else
     myst_ecs = static_library('myst_ecs',
         lib_sources,
-        include_directories: inc
+        include_directories: inc,
+        c_args: args
     )
 
     myst_ecs_shared = shared_library('myst_ecs',
         lib_sources,
-        include_directories: inc
+        include_directories: inc,
+        c_args: args
     )
 endif
 

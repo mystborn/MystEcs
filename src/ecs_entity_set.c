@@ -12,6 +12,7 @@ struct EcsEntitySetBuilder {
     EcsComponentManager** with_components;
     EcsComponentManager** without_components;
     EcsEitherComponent* with_any_components;
+    EcsEntityComparer comparer;
     ComponentEnum with;
     ComponentEnum without;
     int with_count;
@@ -30,6 +31,8 @@ struct EcsEntitySet {
     int* without_subscriptions;
     int* mapping;
     EcsEntity* entities;
+    EcsEntityComparer comparer;
+    void* compare_ctx;
     ComponentEnum with;
     ComponentEnum without;
     int with_count;
@@ -49,6 +52,7 @@ ECS_EXPORT EcsEntitySetBuilder* ecs_entity_set_builder_init(void) {
     builder->with_components = NULL;
     builder->without_components = NULL;
     builder->with_any_components = NULL;
+    builder->comparer = NULL;
     builder->with = COMPONENT_ENUM_DEFAULT;
     builder->without = COMPONENT_ENUM_DEFAULT;
     builder->with_count = 0;
@@ -112,16 +116,59 @@ ECS_EXPORT void ecs_entity_set_with_any(EcsEntitySetBuilder* builder, EcsCompone
     ecs_memcpy(either->components, components, sizeof(EcsComponentManager*) * count);
 }
 
+ECS_EXPORT void ecs_entity_set_sorted(EcsEntitySetBuilder* builder, EcsEntityComparer comparer) {
+    builder->comparer = comparer;
+}
+
+static int entity_sorted_set_add_insertion_point(EcsEntitySet* set, EcsEntity entity) {
+    int low = 0;
+    int high = set->last_index - 1;
+
+    while (low <= high) {
+        int mid = (low + high) >> 1;
+        int comparison = set->comparer(set->entities[mid], entity, set->compare_ctx);
+        if (comparison < 0) {
+            low = mid + 1;
+        } else if (comparison > 0) {
+            high = mid - 1;
+        } else {
+            return mid;
+        }
+    }
+
+    return low + 1;
+}
+
 static void entity_set_add(EcsEntitySet* set, EcsEntity entity) {
     ECS_ARRAY_RESIZE_DEFAULT(set->mapping, set->mapping_capacity, entity.id, sizeof(int), -1);
 
     int* index = set->mapping + entity.id;
-    if(*index == -1) {
+
+    // The entity has already been added, early exit.
+    if (*index != -1)
+        return;
+
+    if (!set->comparer) {
         *index = ++set->last_index;
 
         ECS_ARRAY_RESIZE(set->entities, set->entity_capacity, *index, sizeof(EcsEntity));
 
         set->entities[*index] = entity;
+    } else {
+        // Perform a sorted insert into the set.
+        ECS_ARRAY_RESIZE(set->entities, set->entity_capacity, set->last_index + 1, sizeof(EcsEntity));
+
+        int insert_index = entity_sorted_set_add_insertion_point(set, entity);
+
+        if (insert_index != set->last_index) {
+            memmove(set->entities + insert_index + 1, set->entities + insert_index, set->last_index - insert_index);
+        }
+
+        set->last_index++;
+        set->entities[insert_index] = entity;
+        for (int i = insert_index; i < set->last_index; i++) {
+            set->mapping[set->entities[i].id] = i;
+        }
     }
 }
 
@@ -215,6 +262,7 @@ ECS_EXPORT EcsEntitySet* ecs_entity_set_build(EcsEntitySetBuilder* builder, EcsW
     set->with_count = builder->with_count;
     set->without_count = builder->without_count;
     set->with_any_count = builder->with_any_count;
+    set->comparer = builder->comparer;
 
     set->mapping = NULL;
     set->mapping_capacity = 0;

@@ -20,6 +20,8 @@ typedef struct EcsEntitySetBuilder EcsEntitySetBuilder;
 /// Keeps an updated set of entities with and without specific components.
 typedef struct EcsEntitySet EcsEntitySet;
 
+typedef int (*EcsEntityComparer)(EcsEntity left, EcsEntity right, void* context);
+
 /// Initializes a new EcsEntitySetBuilder.
 ECS_EXPORT EcsEntitySetBuilder* ecs_entity_set_builder_init(void);
 
@@ -42,6 +44,9 @@ ECS_EXPORT void ecs_entity_set_without(EcsEntitySetBuilder* builder, EcsComponen
  * @param count The number of components in the list.
 */
 ECS_EXPORT void ecs_entity_set_with_any(EcsEntitySetBuilder* builder, EcsComponentManager** components, int count);
+
+
+ECS_EXPORT void ecs_entity_set_sorted(EcsEntitySetBuilder* builder, EcsEntityComparer comparer);
 
 /**
  * Builds an EcsEntitySet using the constraints set on EcsEntitySetBuilder.
